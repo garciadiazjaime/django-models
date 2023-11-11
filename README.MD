@@ -1,3 +1,61 @@
+## How to Setup
+
+- Clone repo
+
+```bash
+git clone git@github.com:garciadiazjaime/django-models.git
+```
+
+- Move inside repo
+
+```bash
+cd django-models
+```
+
+- Install virtualenv
+
+```bash
+brew install virtualenv
+```
+
+- Create virtual environment
+
+```bash
+virtualenv venv
+```
+
+- Activate virtual environment
+
+```bash
+source venv/bin/activate
+```
+
+- Install packages
+
+```bash
+pip install -r requirements.txt
+```
+
+- Run Migrations
+
+```bash
+./manage.py migrate
+```
+
+- Create super user (_Optional_)
+
+```bash
+./manage.py createsuperuser
+```
+
+You can use super user on [admin site](http://127.0.0.1:8000/admin)
+
+- Run Server
+
+```bash
+./manage.py runserver
+```
+
 ## How to export DB to JSON
 
 - Open sqlite shell
