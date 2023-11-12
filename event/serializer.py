@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Event, Location, Address, Organizer
+from .models import Event, Location, Address, Organizer, GMapsLocation
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -15,12 +15,38 @@ class OrganizerSerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 
+class GMapsLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GMapsLocation
+        fields = ["lat", "lng", "formatted_address", "name", "place_id"]
+
+    def create(self, validated_data):
+        location_pk = self.context["request"].data["location"]
+        location = Location.objects.get(pk=location_pk)
+
+        instance, _ = GMapsLocation.objects.update_or_create(**validated_data)
+
+        location.gmaps = instance
+        location.gmaps_tries = location.gmaps_tries + 1
+        location.save()
+
+        return instance
+
+
 class LocationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
+    gmaps = GMapsLocationSerializer()
+    gmaps_tries = serializers.IntegerField(read_only=True)
+    pk = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Location
-        fields = ["name", "url", "telephone", "address"]
+        fields = ["name", "url", "telephone", "address", "gmaps", "gmaps_tries", "pk"]
+
+    def update(self, instance, validated_data):
+        instance.gmaps_tries = instance.gmaps_tries + 1
+        instance.save()
+        return instance
 
 
 class EventSerializer(serializers.ModelSerializer):

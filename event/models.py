@@ -15,11 +15,27 @@ class Address(models.Model):
         return f"{self.locality} - {self.street}"
 
 
+class GMapsLocation(models.Model):
+    lat = models.DecimalField(max_digits=17, decimal_places=14, null=True, blank=True)
+    lng = models.DecimalField(max_digits=17, decimal_places=14, null=True, blank=True)
+    formatted_address = models.TextField()
+    name = models.CharField(max_length=240)
+    place_id = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.lat}, {self.lng}"
+
+
 class Location(models.Model):
     name = models.CharField(max_length=240)
     url = models.URLField()
     telephone = models.CharField(max_length=20, blank=True)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
+
+    gmaps_tries = models.PositiveSmallIntegerField(default=0)
+    gmaps = models.ForeignKey(
+        GMapsLocation, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
