@@ -20,7 +20,10 @@ class OrganizerAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ["name", "start_date"]
+    list_display = ["name", "start_date", "location", "gmaps"]
+
+    def gmaps(self, obj):
+        return obj.location.gmaps
 
 
 admin.site.register(Address, AddressAdmin)

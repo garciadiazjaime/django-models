@@ -35,7 +35,7 @@ class GMapsLocationSerializer(serializers.ModelSerializer):
 
 class LocationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
-    gmaps = GMapsLocationSerializer()
+    gmaps = GMapsLocationSerializer(required=False)
     gmaps_tries = serializers.IntegerField(read_only=True)
     pk = serializers.IntegerField(read_only=True)
 
@@ -51,7 +51,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     organizer = OrganizerSerializer(required=False)
-    location = LocationSerializer()
+    location = LocationSerializer(required=False)
 
     class Meta:
         model = Event
