@@ -16,6 +16,9 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
 
 class GMapsLocationSerializer(serializers.ModelSerializer):
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
+
     class Meta:
         model = GMapsLocation
         fields = ["lat", "lng", "formatted_address", "name", "place_id"]

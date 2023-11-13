@@ -8,7 +8,7 @@ from .serializer import EventSerializer, LocationSerializer, GMapsLocationSerial
 class EventViewSet(
     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
 ):
-    queryset = Event.objects.all()
+    queryset = Event.objects.filter(location__gmaps__isnull=False)
     serializer_class = EventSerializer
 
     def get(self, request, *args, **kwargs):
