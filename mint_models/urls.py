@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from event.urls import urlpatterns as event_routes
+from place.urls import urlpatterns as place_routes
 
 urlpatterns = [
     path("api/", include(event_routes)),
+    path("api/places/", include(place_routes)),
     path("gifts/", include("gift.urls")),
     path("admin/", admin.site.urls),
 ]
