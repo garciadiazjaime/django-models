@@ -1,10 +1,6 @@
 from django.contrib import admin
 
-from .models import Address, Location, Organizer, Event, GMapsLocation
-
-
-class AddressAdmin(admin.ModelAdmin):
-    list_display = ["street", "city", "state"]
+from .models import Location, Event, GMapsLocation
 
 
 class GMapsLocationAdmin(admin.ModelAdmin):
@@ -12,24 +8,18 @@ class GMapsLocationAdmin(admin.ModelAdmin):
 
 
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ["name", "gmaps_tries", "gmaps"]
-
-
-class OrganizerAdmin(admin.ModelAdmin):
-    list_display = ["name"]
+    list_display = ["name", "gmaps_tries", "gmaps", "created", "updated"]
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ["name", "start_date", "location", "gmaps"]
+    list_display = ["name", "start_date", "location", "gmaps", "created", "updated"]
 
     def gmaps(self, obj):
         return obj.location.gmaps
 
 
-admin.site.register(Address, AddressAdmin)
 admin.site.register(GMapsLocation, GMapsLocationAdmin)
 admin.site.register(Location, LocationAdmin)
-admin.site.register(Organizer, OrganizerAdmin)
 admin.site.register(Event, EventAdmin)
 
 from django.contrib import admin
