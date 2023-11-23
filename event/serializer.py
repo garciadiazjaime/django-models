@@ -58,14 +58,14 @@ class EventSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         location, _ = Location.objects.update_or_create(
             name=validated_data["location"]["name"],
-            address=validated_data["location"]["address"],
+            address=validated_data["location"]["address"] if "address" in validated_data["location"] else "",
             city=validated_data["location"]["city"],
             state=validated_data["location"]["state"],
         )
 
         event, _ = Event.objects.update_or_create(
             name=validated_data["name"],
-            description=validated_data["description"],
+            description=validated_data["description"] if "description" in validated_data else "",
             image=validated_data["image"],
             url=validated_data["url"],
             start_date=validated_data["start_date"],
