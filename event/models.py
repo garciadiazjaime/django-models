@@ -35,7 +35,7 @@ class Location(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=240)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     image = models.URLField()
     url = models.URLField()
     start_date = models.DateTimeField()
