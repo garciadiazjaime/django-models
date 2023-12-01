@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Event, Location, GMapsLocation
+from .models import Artist, Event, Location, GMapsLocation
 
 
 class GMapsLocationSerializer(serializers.ModelSerializer):
@@ -38,9 +38,38 @@ class LocationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class ArtistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = [
+            "name",
+            "image",
+            "twitter",
+            "facebook",
+            "youtube",
+            "instagram",
+            "tiktok",
+            "soundcloud",
+            "spotify",
+            "appleMusic",
+            "email",
+            "title",
+            "description",
+            "type",
+            "wiki_page_id",
+            "wiki_title",
+            "wiki_description",
+        ]
+
+    def create(self, validated_data):
+        artist, _ = Artist.objects.update_or_create(**validated_data)
+
+        return artist
 
 class EventSerializer(serializers.ModelSerializer):
     location = LocationSerializer(required=False)
+    artist = ArtistSerializer(required=False, read_only=True)
+    name = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = Event
@@ -52,6 +81,7 @@ class EventSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "location",
+            "artist",
             "pk",
         ]
 
@@ -63,14 +93,16 @@ class EventSerializer(serializers.ModelSerializer):
             state=validated_data["location"]["state"],
         )
 
+        artist, _ = Artist.objects.update_or_create(name=validated_data["name"])
+
         event, _ = Event.objects.update_or_create(
-            name=validated_data["name"],
             description=validated_data.get("description", ""),
             image=validated_data["image"],
             url=validated_data["url"],
             start_date=validated_data["start_date"],
             end_date=validated_data["end_date"],
             location=location,
+            artist=artist,
         )
 
         return event
