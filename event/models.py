@@ -32,6 +32,7 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+
 class Artist(models.Model):
     name = models.CharField(max_length=240)
     image = models.URLField(null=True, blank=True)
@@ -45,17 +46,20 @@ class Artist(models.Model):
     appleMusic = models.URLField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     title = models.CharField(null=True, blank=True, max_length=240)
-    description = models.CharField(null=True, blank=True, max_length=240)
+    description = models.CharField(null=True, blank=True, max_length=480)
     type = models.CharField(null=True, blank=True, max_length=240)
     wiki_page_id = models.CharField(null=True, blank=True, max_length=20)
     wiki_title = models.CharField(null=True, blank=True, max_length=240)
-    wiki_description = models.CharField(null=True, blank=True, max_length=240)
+    wiki_description = models.CharField(null=True, blank=True, max_length=120)
+    wiki_tries = models.PositiveSmallIntegerField(default=0)
+    website = models.URLField(null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
 
 class Event(models.Model):
     description = models.TextField(null=True, blank=True)

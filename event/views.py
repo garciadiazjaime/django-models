@@ -2,9 +2,14 @@ from rest_framework import generics
 from rest_framework import mixins
 from django_filters import rest_framework as filters
 
-from .models import Event, Location, GMapsLocation
-from .serializer import EventSerializer, LocationSerializer, GMapsLocationSerializer
-from .filters import EventFilter, LocationFilter
+from .models import Event, Location, GMapsLocation, Artist
+from .serializer import (
+    EventSerializer,
+    LocationSerializer,
+    GMapsLocationSerializer,
+    ArtistSerializer,
+)
+from .filters import EventFilter, LocationFilter, ArtistFilter
 
 
 class EventViewSet(
@@ -43,6 +48,21 @@ class GMapsLocationViewSet(
 ):
     queryset = GMapsLocation.objects.all()
     serializer_class = GMapsLocationSerializer
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class ArtistViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
+):
+    queryset = Artist.objects.filter()
+    serializer_class = ArtistSerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = ArtistFilter
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)

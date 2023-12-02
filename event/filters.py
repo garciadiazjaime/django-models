@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Event, Location
+from .models import Event, Location, Artist
 
 
 class EventFilter(filters.FilterSet):
@@ -26,3 +26,18 @@ class LocationFilter(filters.FilterSet):
     class Meta:
         model = Location
         fields = ["gmaps_empty", "gmaps_tries"]
+
+
+class ArtistFilter(filters.FilterSet):
+    wiki_empty = filters.BooleanFilter(
+        field_name="wiki_page_id", method="wiki_empty_filter"
+    )
+    wiki_tries = filters.NumberFilter(field_name="wiki_tries", lookup_expr="lte")
+
+    def wiki_empty_filter(self, queryset, name, value):
+        lookup = "__".join([name, "isnull"])
+        return queryset.filter(**{lookup: value})
+
+    class Meta:
+        model = Artist
+        fields = ["wiki_empty", "wiki_tries"]

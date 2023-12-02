@@ -6,6 +6,7 @@ from .models import Location, Event, GMapsLocation, Artist
 class GMapsLocationAdmin(admin.ModelAdmin):
     list_display = ["name", "lat", "lng"]
 
+
 class LocationAdmin(admin.ModelAdmin):
     list_display = ["name", "gmaps_tries", "gmaps", "created", "updated"]
 
@@ -19,8 +20,20 @@ class EventAdmin(admin.ModelAdmin):
     def gmaps(self, obj):
         return obj.location.gmaps
 
+
 class ArtistAdmin(admin.ModelAdmin):
-    list_display = ["name", "created", "updated"]
+    list_display = [
+        "name",
+        "wiki_page_id",
+        "wiki_tries",
+        "location",
+        "created",
+        "updated",
+    ]
+
+    def location(self, obj):
+        return obj.event_set.first().location
+
 
 admin.site.register(GMapsLocation, GMapsLocationAdmin)
 admin.site.register(Location, LocationAdmin)

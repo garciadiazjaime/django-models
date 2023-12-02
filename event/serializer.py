@@ -38,7 +38,13 @@ class LocationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class ArtistSerializer(serializers.ModelSerializer):
+    location = serializers.CharField(
+        read_only=True, source="event_set.first.location.name"
+    )
+    event = serializers.CharField(read_only=True, source="event_set.first.url")
+
     class Meta:
         model = Artist
         fields = [
@@ -59,12 +65,22 @@ class ArtistSerializer(serializers.ModelSerializer):
             "wiki_page_id",
             "wiki_title",
             "wiki_description",
+            "wiki_tries",
+            "website",
+            "location",
+            "event",
         ]
 
     def create(self, validated_data):
-        artist, _ = Artist.objects.update_or_create(**validated_data)
+        artist, _ = Artist.objects.update_or_create(
+            name=validated_data["name"], defaults=validated_data
+        )
+
+        artist.wiki_tries = artist.wiki_tries + 1
+        artist.save()
 
         return artist
+
 
 class EventSerializer(serializers.ModelSerializer):
     location = LocationSerializer(required=False)
