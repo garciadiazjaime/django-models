@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Artist, Event, Location, GMapsLocation
+from .models import Artist, Event, Location, GMapsLocation, Metadata
 
 
 class GMapsLocationSerializer(serializers.ModelSerializer):
@@ -24,31 +24,14 @@ class GMapsLocationSerializer(serializers.ModelSerializer):
         return instance
 
 
-class LocationSerializer(serializers.ModelSerializer):
-    gmaps = GMapsLocationSerializer(required=False)
-    gmaps_tries = serializers.IntegerField(read_only=True)
-    pk = serializers.IntegerField(read_only=True)
-
+class MetadataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Location
-        fields = ["name", "address", "city", "state", "gmaps", "gmaps_tries", "pk"]
-
-    def update(self, instance, validated_data):
-        instance.gmaps_tries = instance.gmaps_tries + 1
-        instance.save()
-        return instance
-
-
-class ArtistSerializer(serializers.ModelSerializer):
-    location = serializers.CharField(
-        read_only=True, source="event_set.first.location.name"
-    )
-    event = serializers.CharField(read_only=True, source="event_set.first.url")
-
-    class Meta:
-        model = Artist
+        model = Metadata
         fields = [
-            "name",
+            "wiki_page_id",
+            "wiki_title",
+            "wiki_description",
+            "website",
             "image",
             "twitter",
             "facebook",
@@ -62,24 +45,81 @@ class ArtistSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "type",
-            "wiki_page_id",
-            "wiki_title",
-            "wiki_description",
-            "wiki_tries",
-            "website",
-            "location",
-            "event",
         ]
 
     def create(self, validated_data):
-        artist, _ = Artist.objects.update_or_create(
-            name=validated_data["name"], defaults=validated_data
-        )
+        artist_pk = self.context["request"].data.get("artist")
+        location_pk = self.context["request"].data.get("location")
 
-        artist.wiki_tries = artist.wiki_tries + 1
-        artist.save()
+        instance, _ = Metadata.objects.update_or_create(**validated_data)
+
+        if artist_pk:
+            artist = Artist.objects.get(pk=artist_pk)
+            artist.wiki_tries = artist.wiki_tries + 1
+            artist.metadata = instance
+            artist.save()
+
+        if location_pk:
+            location = Location.objects.get(pk=location_pk)
+            location.wiki_tries = location.wiki_tries + 1
+            location.metadata = instance
+            location.save()
+
+        return instance
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    gmaps = GMapsLocationSerializer(required=False)
+    gmaps_tries = serializers.IntegerField(read_only=True)
+    metadata = MetadataSerializer(read_only=True)
+
+    class Meta:
+        model = Location
+        fields = [
+            "pk",
+            "name",
+            "address",
+            "city",
+            "state",
+            "gmaps",
+            "gmaps_tries",
+            "wiki_tries",
+            "metadata",
+        ]
+
+    def update(self, instance, validated_data):
+        if "wiki_tries" in validated_data:
+            instance.wiki_tries = instance.wiki_tries + 1
+        else:
+            instance.gmaps_tries = instance.gmaps_tries + 1
+
+        instance.save()
+
+        return instance
+
+
+class ArtistSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=False)
+    metadata = MetadataSerializer(read_only=True)
+
+    class Meta:
+        model = Artist
+        fields = [
+            "pk",
+            "name",
+            "wiki_tries",
+            "metadata",
+        ]
+
+    def create(self, validated_data):
+        artist, _ = Artist.objects.update_or_create(**validated_data)
 
         return artist
+
+    def update(self, instance, validated_data):
+        instance.wiki_tries = instance.wiki_tries + 1
+        instance.save()
+        return instance
 
 
 class EventSerializer(serializers.ModelSerializer):

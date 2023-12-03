@@ -15,6 +15,33 @@ class GMapsLocation(models.Model):
         return f"{self.lat}, {self.lng}"
 
 
+class Metadata(models.Model):
+    wiki_page_id = models.PositiveIntegerField()
+    wiki_title = models.CharField(null=True, blank=True, max_length=240)
+    wiki_description = models.CharField(null=True, blank=True, max_length=120)
+    website = models.URLField(null=True, blank=True)
+
+    image = models.URLField(null=True, blank=True, max_length=240)
+    twitter = models.URLField(null=True, blank=True)
+    facebook = models.URLField(null=True, blank=True)
+    youtube = models.URLField(null=True, blank=True)
+    instagram = models.URLField(null=True, blank=True)
+    tiktok = models.URLField(null=True, blank=True)
+    soundcloud = models.URLField(null=True, blank=True)
+    spotify = models.URLField(null=True, blank=True)
+    appleMusic = models.URLField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    title = models.CharField(null=True, blank=True, max_length=240)
+    description = models.CharField(null=True, blank=True, max_length=960)
+    type = models.CharField(null=True, blank=True, max_length=240)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.wiki_page_id}"
+
+
 class Location(models.Model):
     name = models.CharField(max_length=240)
     address = models.CharField(max_length=240, null=True, blank=True)
@@ -26,6 +53,11 @@ class Location(models.Model):
         GMapsLocation, on_delete=models.CASCADE, null=True, blank=True
     )
 
+    wiki_tries = models.PositiveSmallIntegerField(default=0)
+    metadata = models.ForeignKey(
+        Metadata, on_delete=models.CASCADE, null=True, blank=True
+    )
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -35,24 +67,9 @@ class Location(models.Model):
 
 class Artist(models.Model):
     name = models.CharField(max_length=240)
-    image = models.URLField(null=True, blank=True)
-    twitter = models.URLField(null=True, blank=True)
-    facebook = models.URLField(null=True, blank=True)
-    youtube = models.URLField(null=True, blank=True)
-    instagram = models.URLField(null=True, blank=True)
-    tiktok = models.URLField(null=True, blank=True)
-    soundcloud = models.URLField(null=True, blank=True)
-    spotify = models.URLField(null=True, blank=True)
-    appleMusic = models.URLField(null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    title = models.CharField(null=True, blank=True, max_length=240)
-    description = models.CharField(null=True, blank=True, max_length=480)
-    type = models.CharField(null=True, blank=True, max_length=240)
-    wiki_page_id = models.CharField(null=True, blank=True, max_length=20)
-    wiki_title = models.CharField(null=True, blank=True, max_length=240)
-    wiki_description = models.CharField(null=True, blank=True, max_length=120)
+
     wiki_tries = models.PositiveSmallIntegerField(default=0)
-    website = models.URLField(null=True, blank=True)
+    metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

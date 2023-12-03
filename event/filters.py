@@ -16,28 +16,28 @@ class EventFilter(filters.FilterSet):
 
 
 class LocationFilter(filters.FilterSet):
-    gmaps_empty = filters.BooleanFilter(field_name="gmaps", method="gmaps_empty_filter")
-    gmaps_tries = filters.NumberFilter(field_name="gmaps_tries", lookup_expr="lte")
+    gmaps_empty = filters.BooleanFilter(field_name="gmaps", method="empty_filter")
+    metadata_empty = filters.BooleanFilter(field_name="metadata", method="empty_filter")
+    gmaps_tries = filters.NumberFilter(lookup_expr="lt")
+    wiki_tries = filters.NumberFilter(lookup_expr="lt")
 
-    def gmaps_empty_filter(self, queryset, name, value):
+    def empty_filter(self, queryset, name, value):
         lookup = "__".join([name, "isnull"])
         return queryset.filter(**{lookup: value})
 
     class Meta:
         model = Location
-        fields = ["gmaps_empty", "gmaps_tries"]
+        fields = ["gmaps_empty", "gmaps_tries", "metadata_empty", "wiki_tries"]
 
 
 class ArtistFilter(filters.FilterSet):
-    wiki_empty = filters.BooleanFilter(
-        field_name="wiki_page_id", method="wiki_empty_filter"
-    )
-    wiki_tries = filters.NumberFilter(field_name="wiki_tries", lookup_expr="lte")
+    metadata_empty = filters.BooleanFilter(field_name="metadata", method="empty_filter")
+    wiki_tries = filters.NumberFilter(lookup_expr="lt")
 
-    def wiki_empty_filter(self, queryset, name, value):
+    def empty_filter(self, queryset, name, value):
         lookup = "__".join([name, "isnull"])
         return queryset.filter(**{lookup: value})
 
     class Meta:
         model = Artist
-        fields = ["wiki_empty", "wiki_tries"]
+        fields = ["metadata_empty", "wiki_tries"]
