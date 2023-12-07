@@ -4,13 +4,14 @@ from .models import Location, Event, GMapsLocation, Artist, Metadata
 
 
 class GMapsLocationAdmin(admin.ModelAdmin):
-    list_display = ["name", "lat", "lng"]
+    list_display = ["name", "slug", "lat", "lng", "created", "updated"]
     search_fields = ["name"]
 
 
 class LocationAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "slug",
         "gmaps_tries",
         "gmaps",
         "wiki_tries",
@@ -35,6 +36,7 @@ class EventAdmin(admin.ModelAdmin):
 class ArtistAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "slug",
         "wiki_page_id",
         "wiki_tries",
         "created",
@@ -49,6 +51,7 @@ class ArtistAdmin(admin.ModelAdmin):
 class MetadataAdmin(admin.ModelAdmin):
     list_display = [
         "wiki_page_id",
+        "slug",
         "website",
         "created",
         "updated",

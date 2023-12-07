@@ -8,6 +8,8 @@ django = "==4.2.6"
 django-filter = "==23.3"
 djangorestframework = "==3.14.0"
 django-autoslug = "*"
+mysqlclient = "*"
+django-environ = "*"
 
 [dev-packages]
 

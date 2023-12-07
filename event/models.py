@@ -1,4 +1,5 @@
 from django.db import models
+from autoslug import AutoSlugField
 
 
 class GMapsLocation(models.Model):
@@ -8,6 +9,7 @@ class GMapsLocation(models.Model):
     name = models.CharField(max_length=240)
     place_id = models.CharField(max_length=50)
 
+    slug = models.SlugField(max_length=240)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -35,6 +37,7 @@ class Metadata(models.Model):
     description = models.CharField(null=True, blank=True, max_length=960)
     type = models.CharField(null=True, blank=True, max_length=240)
 
+    slug = models.SlugField(max_length=240)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -58,6 +61,7 @@ class Location(models.Model):
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
+    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -71,6 +75,7 @@ class Artist(models.Model):
     wiki_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
 
+    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -84,6 +89,8 @@ class Event(models.Model):
     url = models.URLField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+
+    rank = models.PositiveSmallIntegerField(default=0)
 
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)

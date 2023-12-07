@@ -7,6 +7,7 @@ from django_filters import rest_framework as filters
 from .models import Event, Location, GMapsLocation, Artist, Metadata
 from .serializer import (
     EventSerializer,
+    EventRankSerializer,
     LocationSerializer,
     GMapsLocationSerializer,
     ArtistSerializer,
@@ -20,11 +21,22 @@ class EventViewSet(
 ):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     filterset_class = EventFilter
+    ordering_fields = ["rank"]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class EventRankViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
+):
+    queryset = Event.objects.all()
+    serializer_class = EventRankSerializer
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
