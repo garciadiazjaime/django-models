@@ -87,64 +87,75 @@ from .misc import get_performer
 #         return instance
 
 
-# class LocationSerializer(serializers.ModelSerializer):
-#     gmaps = GMapsLocationSerializer(required=False)
-#     gmaps_tries = serializers.IntegerField(read_only=True)
-#     metadata = MetadataSerializer(read_only=True)
+class LocationSerializer(serializers.ModelSerializer):
+    slug = serializers.CharField(read_only=True)
+    event = serializers.PrimaryKeyRelatedField(
+        queryset=Event.objects.all(), write_only=True
+    )
+    # gmaps = GMapsLocationSerializer(required=False)
+    # gmaps_tries = serializers.IntegerField(read_only=True)
+    # metadata = MetadataSerializer(read_only=True)
 
-#     class Meta:
-#         model = Location
-#         fields = [
-#             "pk",
-#             "name",
-#             "address",
-#             "city",
-#             "state",
-#             "gmaps",
-#             "gmaps_tries",
-#             "wiki_tries",
-#             "metadata",
-#         ]
+    class Meta:
+        model = Location
+        fields = [
+            "name",
+            "address",
+            "lat",
+            "lng",
+            "place_id",
+            "slug",
+            "event",
+            "pk",
+        ]
 
-#     def update(self, instance, validated_data):
-#         if "wiki_tries" in validated_data:
-#             instance.wiki_tries = instance.wiki_tries + 1
-#         else:
-#             instance.gmaps_tries = instance.gmaps_tries + 1
+    def create(self, validated_data):
+        event = validated_data.get("event")
 
-#         instance.save()
+        instance, _ = Location.objects.update_or_create(**validated_data)
 
-#         return instance
+        event.location = instance
+        event.gmaps_tries = event.gmaps_tries + 1
+        event.save()
+
+        return instance
+
+    # def update(self, instance, validated_data):
+    #     if "wiki_tries" in validated_data:
+    #         instance.wiki_tries = instance.wiki_tries + 1
+    #     else:
+    #         instance.gmaps_tries = instance.gmaps_tries + 1
+
+    #     instance.save()
+
+    #     return instance
 
 
-# class ArtistSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(required=False)
-#     metadata = MetadataSerializer(read_only=True)
+class ArtistSerializer(serializers.ModelSerializer):
+    # metadata = MetadataSerializer(read_only=True)
 
-#     class Meta:
-#         model = Artist
-#         fields = [
-#             "pk",
-#             "name",
-#             "wiki_tries",
-#             "metadata",
-#         ]
+    class Meta:
+        model = Artist
+        fields = [
+            "name",
+        ]
 
-#     def create(self, validated_data):
-#         artist, _ = Artist.objects.update_or_create(**validated_data)
+    # def create(self, validated_data):
+    #     artist, _ = Artist.objects.update_or_create(**validated_data)
 
-#         return artist
+    #     return artist
 
-#     def update(self, instance, validated_data):
-#         instance.wiki_tries = instance.wiki_tries + 1
-#         instance.save()
-#         return instance
+    # def update(self, instance, validated_data):
+    #     instance.wiki_tries = instance.wiki_tries + 1
+    #     instance.save()
+    #     return instance
 
 
 class EventSerializer(serializers.ModelSerializer):
     slug = serializers.CharField(read_only=True)
-    # location = LocationSerializer(required=False)
-    # artist = ArtistSerializer(required=False, read_only=True)
+    gmaps_tries = serializers.IntegerField(required=False)
+    location = LocationSerializer(read_only=True)
+    artists = ArtistSerializer(read_only=True, many=True)
 
     class Meta:
         model = Event
@@ -161,12 +172,23 @@ class EventSerializer(serializers.ModelSerializer):
             "address",
             "city",
             "slug",
+            "gmaps_tries",
+            "location",
+            "artists",
+            "pk",
         ]
 
     def create(self, validated_data):
-        event, _ = Event.objects.update_or_create(**validated_data)
+        instance, _ = Event.objects.update_or_create(**validated_data)
 
-        return event
+        return instance
+
+    def update(self, instance, validated_data):
+        if validated_data.get("gmaps_tries"):
+            instance.gmaps_tries = instance.gmaps_tries + 1
+            instance.save()
+
+        return instance
 
 
 # class EventRankSerializer(serializers.ModelSerializer):

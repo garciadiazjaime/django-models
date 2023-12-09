@@ -34,8 +34,19 @@ class ArtistAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ["name", "start_date", "location", "artist", "created", "updated"]
-    search_fields = ["name"]
+    list_display = [
+        "pk",
+        "name",
+        "slug",
+        "venue",
+        "gmaps_tries",
+        "start_date",
+        "location",
+        "artist",
+        "created",
+        "updated",
+    ]
+    search_fields = ["pk", "name", "slug"]
 
     def artist(self, obj):
         return obj.artists.first()

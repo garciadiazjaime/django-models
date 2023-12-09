@@ -3,16 +3,17 @@ from .models import Event, Location, Artist
 
 
 class EventFilter(filters.FilterSet):
-    gmaps_empty = filters.CharFilter(method="gmaps_empty_filter")
+    location_empty = filters.BooleanFilter(field_name="location", method="empty_filter")
+    gmaps_tries = filters.NumberFilter(lookup_expr="lt")
     start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
 
-    def gmaps_empty_filter(self, queryset, name, value):
-        value = value.lower() == "true"
-        return queryset.filter(location__gmaps__isnull=value)
+    def empty_filter(self, queryset, name, value):
+        lookup = "__".join([name, "isnull"])
+        return queryset.filter(**{lookup: value})
 
     class Meta:
         model = Event
-        fields = ["gmaps_empty", "start_date"]
+        fields = ["location_empty", "gmaps_tries", "start_date"]
 
 
 class LocationFilter(filters.FilterSet):

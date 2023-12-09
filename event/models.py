@@ -42,7 +42,6 @@ class Location(models.Model):
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
-    event_slug = models.SlugField(max_length=240)
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -57,7 +56,6 @@ class Artist(models.Model):
     wiki_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
 
-    event_slug = models.SlugField(max_length=240)
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
