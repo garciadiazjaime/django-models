@@ -36,13 +36,14 @@ class EventAdmin(admin.ModelAdmin):
 class ArtistAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "full_name",
         "slug",
         "wiki_page_id",
         "wiki_tries",
         "created",
         "updated",
     ]
-    search_fields = ["name"]
+    search_fields = ["name", "full_name"]
 
     def wiki_page_id(self, obj):
         return obj.metadata

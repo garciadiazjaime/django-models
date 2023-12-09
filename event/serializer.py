@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from .models import Artist, Event, Location, GMapsLocation, Metadata
 
+from .misc import get_performer
+
 
 class GMapsLocationSerializer(serializers.ModelSerializer):
     location = serializers.PrimaryKeyRelatedField(
@@ -160,14 +162,16 @@ class EventSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        name = validated_data.pop("name")
+        performer = get_performer(name)
+        artist, _ = Artist.objects.update_or_create(name=performer, full_name=name)
+
         location, _ = Location.objects.update_or_create(
             name=validated_data["location"]["name"],
             address=validated_data["location"].get("address", ""),
             city=validated_data["location"]["city"],
             state=validated_data["location"]["state"],
         )
-
-        artist, _ = Artist.objects.update_or_create(name=validated_data["name"])
 
         event, _ = Event.objects.update_or_create(
             description=validated_data.get("description", ""),

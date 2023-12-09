@@ -71,6 +71,7 @@ class Location(models.Model):
 
 class Artist(models.Model):
     name = models.CharField(max_length=240)
+    full_name = models.CharField(max_length=240)
 
     wiki_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
