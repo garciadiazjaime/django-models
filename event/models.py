@@ -2,21 +2,6 @@ from django.db import models
 from autoslug import AutoSlugField
 
 
-class GMapsLocation(models.Model):
-    lat = models.DecimalField(max_digits=17, decimal_places=14, null=True, blank=True)
-    lng = models.DecimalField(max_digits=17, decimal_places=14, null=True, blank=True)
-    formatted_address = models.TextField()
-    name = models.CharField(max_length=240)
-    place_id = models.CharField(max_length=50)
-
-    slug = models.SlugField(max_length=240)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.lat}, {self.lng}"
-
-
 class Metadata(models.Model):
     wiki_page_id = models.PositiveIntegerField()
     wiki_title = models.CharField(null=True, blank=True, max_length=240)
@@ -37,7 +22,7 @@ class Metadata(models.Model):
     description = models.CharField(null=True, blank=True, max_length=960)
     type = models.CharField(null=True, blank=True, max_length=240)
 
-    slug = models.SlugField(max_length=240)
+    location_artist_slug = models.SlugField(max_length=240)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -47,20 +32,17 @@ class Metadata(models.Model):
 
 class Location(models.Model):
     name = models.CharField(max_length=240)
-    address = models.CharField(max_length=240, null=True, blank=True)
-    city = models.CharField(max_length=240)
-    state = models.CharField(max_length=240)
-
-    gmaps_tries = models.PositiveSmallIntegerField(default=0)
-    gmaps = models.ForeignKey(
-        GMapsLocation, on_delete=models.CASCADE, null=True, blank=True
-    )
+    address = models.TextField()
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    lng = models.DecimalField(max_digits=9, decimal_places=6)
+    place_id = models.CharField(max_length=50)
 
     wiki_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
+    event_slug = models.SlugField(max_length=240)
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -71,11 +53,11 @@ class Location(models.Model):
 
 class Artist(models.Model):
     name = models.CharField(max_length=240)
-    full_name = models.CharField(max_length=240)
 
     wiki_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
 
+    event_slug = models.SlugField(max_length=240)
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -85,19 +67,30 @@ class Artist(models.Model):
 
 
 class Event(models.Model):
-    description = models.TextField(null=True, blank=True)
+    name = models.CharField(max_length=240)
+    description = models.TextField(default="")
     image = models.URLField()
     url = models.URLField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    provider = models.CharField(max_length=240)
+
+    venue = models.CharField(max_length=240)
+    address = models.CharField(max_length=240, default="")
+    city = models.CharField(max_length=240)
 
     rank = models.PositiveSmallIntegerField(default=0)
 
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, null=True, blank=True
+    )
+    gmaps_tries = models.PositiveSmallIntegerField(default=0)
 
+    artists = models.ManyToManyField(Artist, blank=True)
+
+    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.artist.name
+        return self.name

@@ -1,58 +1,12 @@
 from django.contrib import admin
 
-from .models import Location, Event, GMapsLocation, Artist, Metadata
-
-
-class GMapsLocationAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "lat", "lng", "created", "updated"]
-    search_fields = ["name"]
-
-
-class LocationAdmin(admin.ModelAdmin):
-    list_display = [
-        "name",
-        "slug",
-        "gmaps_tries",
-        "gmaps",
-        "wiki_tries",
-        "metadata",
-        "created",
-        "updated",
-    ]
-    search_fields = ["name"]
-
-
-class EventAdmin(admin.ModelAdmin):
-    list_display = ["name", "start_date", "location", "gmaps", "created", "updated"]
-    search_fields = ["artist__name"]
-
-    def name(self, obj):
-        return obj.artist.name
-
-    def gmaps(self, obj):
-        return obj.location.gmaps
-
-
-class ArtistAdmin(admin.ModelAdmin):
-    list_display = [
-        "name",
-        "full_name",
-        "slug",
-        "wiki_page_id",
-        "wiki_tries",
-        "created",
-        "updated",
-    ]
-    search_fields = ["name", "full_name"]
-
-    def wiki_page_id(self, obj):
-        return obj.metadata
+from .models import Location, Event, Artist, Metadata
 
 
 class MetadataAdmin(admin.ModelAdmin):
     list_display = [
         "wiki_page_id",
-        "slug",
+        "location_artist_slug",
         "website",
         "created",
         "updated",
@@ -60,10 +14,36 @@ class MetadataAdmin(admin.ModelAdmin):
     search_fields = ["wiki_title"]
 
 
-admin.site.register(GMapsLocation, GMapsLocationAdmin)
-admin.site.register(Location, LocationAdmin)
-admin.site.register(Event, EventAdmin)
-admin.site.register(Artist, ArtistAdmin)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ["name", "lat", "lng", "created", "updated"]
+    search_fields = ["name"]
+
+
+class ArtistAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "wiki_page_id",
+        "wiki_tries",
+        "created",
+        "updated",
+    ]
+    search_fields = ["name"]
+
+    def wiki_page_id(self, obj):
+        return obj.metadata
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ["name", "start_date", "location", "artist", "created", "updated"]
+    search_fields = ["name"]
+
+    def artist(self, obj):
+        return obj.artists.first()
+
+
 admin.site.register(Metadata, MetadataAdmin)
+admin.site.register(Location, LocationAdmin)
+admin.site.register(Artist, ArtistAdmin)
+admin.site.register(Event, EventAdmin)
 
 from django.contrib import admin
