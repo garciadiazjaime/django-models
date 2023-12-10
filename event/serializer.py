@@ -105,6 +105,7 @@ class LocationSerializer(serializers.ModelSerializer):
             "lng",
             "place_id",
             "slug",
+            "slug_venue",
             "event",
             "pk",
         ]
@@ -112,7 +113,10 @@ class LocationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         event = validated_data.get("event")
 
-        instance, _ = Location.objects.update_or_create(**validated_data)
+        place_id = validated_data.get("place_id")
+        instance, _ = Location.objects.update_or_create(
+            place_id=place_id, defaults=validated_data
+        )
 
         event.location = instance
         event.gmaps_tries = event.gmaps_tries + 1
@@ -155,6 +159,9 @@ class EventSerializer(serializers.ModelSerializer):
     slug = serializers.CharField(read_only=True)
     gmaps_tries = serializers.IntegerField(required=False)
     location = LocationSerializer(read_only=True)
+    location_pk = serializers.PrimaryKeyRelatedField(
+        queryset=Location.objects.all(), write_only=True, required=False
+    )
     artists = ArtistSerializer(read_only=True, many=True)
 
     class Meta:
@@ -176,6 +183,7 @@ class EventSerializer(serializers.ModelSerializer):
             "location",
             "artists",
             "pk",
+            "location_pk",
         ]
 
     def create(self, validated_data):
@@ -186,6 +194,11 @@ class EventSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if validated_data.get("gmaps_tries"):
             instance.gmaps_tries = instance.gmaps_tries + 1
+
+            location = validated_data.get("location_pk")
+            if location:
+                instance.location = location
+
             instance.save()
 
         return instance

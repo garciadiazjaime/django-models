@@ -15,7 +15,7 @@ class MetadataAdmin(admin.ModelAdmin):
 
 
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ["name", "lat", "lng", "created", "updated"]
+    list_display = ["name", "slug", "slug_venue", "lat", "lng", "created", "updated"]
     search_fields = ["name"]
 
 
@@ -37,19 +37,23 @@ class EventAdmin(admin.ModelAdmin):
     list_display = [
         "pk",
         "name",
-        "slug",
         "venue",
         "gmaps_tries",
-        "start_date",
+        "location_pk",
         "location",
         "artist",
+        "start_date",
         "created",
         "updated",
     ]
-    search_fields = ["pk", "name", "slug"]
+    search_fields = ["pk", "name", "slug", "venue"]
 
     def artist(self, obj):
         return obj.artists.first()
+
+    def location_pk(self, obj):
+        if obj.location:
+            return obj.location.pk
 
 
 admin.site.register(Metadata, MetadataAdmin)

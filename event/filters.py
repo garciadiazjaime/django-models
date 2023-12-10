@@ -28,7 +28,13 @@ class LocationFilter(filters.FilterSet):
 
     class Meta:
         model = Location
-        fields = ["gmaps_empty", "gmaps_tries", "metadata_empty", "wiki_tries"]
+        fields = [
+            "gmaps_empty",
+            "gmaps_tries",
+            "metadata_empty",
+            "wiki_tries",
+            "slug_venue",
+        ]
 
 
 class ArtistFilter(filters.FilterSet):

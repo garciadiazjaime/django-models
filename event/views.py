@@ -60,8 +60,8 @@ class LocationViewSet(
     filterset_class = LocationFilter
     ordering_fields = ["wiki_tries"]
 
-    # def get(self, request, *args, **kwargs):
-    #     return self.list(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)

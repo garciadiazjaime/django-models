@@ -43,6 +43,7 @@ class Location(models.Model):
     )
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
+    slug_venue = models.SlugField(max_length=240)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -54,7 +55,9 @@ class Artist(models.Model):
     name = models.CharField(max_length=240)
 
     wiki_tries = models.PositiveSmallIntegerField(default=0)
-    metadata = models.ForeignKey(Metadata, on_delete=models.CASCADE, null=True)
+    metadata = models.ForeignKey(
+        Metadata, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -66,7 +69,7 @@ class Artist(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=240)
-    description = models.TextField(default="")
+    description = models.TextField(default="", blank=True)
     image = models.URLField()
     url = models.URLField()
     start_date = models.DateTimeField()
@@ -74,13 +77,13 @@ class Event(models.Model):
     provider = models.CharField(max_length=240)
 
     venue = models.CharField(max_length=240)
-    address = models.CharField(max_length=240, default="")
+    address = models.CharField(max_length=240, default="", blank=True)
     city = models.CharField(max_length=240)
 
     rank = models.PositiveSmallIntegerField(default=0)
 
     location = models.ForeignKey(
-        Location, on_delete=models.CASCADE, null=True, blank=True
+        Location, on_delete=models.SET_NULL, null=True, blank=True
     )
     gmaps_tries = models.PositiveSmallIntegerField(default=0)
 
