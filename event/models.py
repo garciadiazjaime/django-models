@@ -1,33 +1,44 @@
 from django.db import models
 from autoslug import AutoSlugField
 
+METADATA_CHOICES = [("ARTIST", "ARTIST"), ("LOCATION", "LOCATION")]
+
 
 class Metadata(models.Model):
-    wiki_page_id = models.PositiveIntegerField()
-    wiki_title = models.CharField(null=True, blank=True, max_length=240)
-    wiki_description = models.CharField(null=True, blank=True, max_length=120)
-    website = models.URLField(null=True, blank=True)
+    slug = models.SlugField(max_length=240)
+    type = models.CharField(max_length=24, choices=METADATA_CHOICES)
+    website = models.URLField(default="", blank=True)
+    image = models.URLField(default="", blank=True, max_length=240)
+    twitter = models.URLField(default="", blank=True)
+    facebook = models.URLField(default="", blank=True)
+    youtube = models.URLField(default="", blank=True)
+    instagram = models.URLField(default="", blank=True)
+    tiktok = models.URLField(default="", blank=True)
+    soundcloud = models.URLField(default="", blank=True)
+    spotify = models.URLField(default="", blank=True)
+    appleMusic = models.URLField(default="", blank=True)
 
-    image = models.URLField(null=True, blank=True, max_length=240)
-    twitter = models.URLField(null=True, blank=True)
-    facebook = models.URLField(null=True, blank=True)
-    youtube = models.URLField(null=True, blank=True)
-    instagram = models.URLField(null=True, blank=True)
-    tiktok = models.URLField(null=True, blank=True)
-    soundcloud = models.URLField(null=True, blank=True)
-    spotify = models.URLField(null=True, blank=True)
-    appleMusic = models.URLField(null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    title = models.CharField(null=True, blank=True, max_length=240)
-    description = models.CharField(null=True, blank=True, max_length=960)
-    type = models.CharField(null=True, blank=True, max_length=240)
-
-    location_artist_slug = models.SlugField(max_length=240)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.wiki_page_id}"
+        return self.slug
+
+
+class Artist(models.Model):
+    name = models.CharField(max_length=240)
+    profile = models.URLField()
+
+    metadata = models.ForeignKey(
+        Metadata, on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Location(models.Model):
@@ -36,30 +47,15 @@ class Location(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     lng = models.DecimalField(max_digits=9, decimal_places=6)
     place_id = models.CharField(max_length=50)
+    website = models.URLField(default="")
 
-    wiki_tries = models.PositiveSmallIntegerField(default=0)
+    meta_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(
-        Metadata, on_delete=models.CASCADE, null=True, blank=True
+        Metadata, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     slug_venue = models.SlugField(max_length=240)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Artist(models.Model):
-    name = models.CharField(max_length=240)
-
-    wiki_tries = models.PositiveSmallIntegerField(default=0)
-    metadata = models.ForeignKey(
-        Metadata, on_delete=models.CASCADE, null=True, blank=True
-    )
-
-    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -88,6 +84,7 @@ class Event(models.Model):
     gmaps_tries = models.PositiveSmallIntegerField(default=0)
 
     artists = models.ManyToManyField(Artist, blank=True)
+    artist_tries = models.PositiveSmallIntegerField(default=0)
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)

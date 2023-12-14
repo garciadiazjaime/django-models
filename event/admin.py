@@ -1,55 +1,104 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import Location, Event, Artist, Metadata
 
 
 class MetadataAdmin(admin.ModelAdmin):
     list_display = [
-        "wiki_page_id",
-        "location_artist_slug",
+        "slug",
+        "type",
+        "ref",
+        "social",
+        "music",
         "website",
         "created",
         "updated",
     ]
-    search_fields = ["wiki_title"]
+    search_fields = ["slug"]
+
+    def ref(self, obj):
+        if obj.location_set.count():
+            return "location"
+
+        if obj.artist_set.count():
+            return "artist"
+
+        return None
+
+    def social(self, obj):
+        if obj.twitter or obj.facebook or obj.instagram or obj.tiktok:
+            return True
+
+        return False
+
+    def music(self, obj):
+        if obj.youtube or obj.soundcloud or obj.spotify or obj.appleMusic:
+            return True
+
+        return False
 
 
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "slug_venue", "lat", "lng", "created", "updated"]
-    search_fields = ["name"]
+    list_display = [
+        "name",
+        "slug",
+        "slug_venue",
+        "events",
+        "metadata",
+        "meta_tries",
+        "pk",
+        "created",
+        "updated",
+    ]
+    search_fields = ["name", "pk"]
+
+    def get_queryset(self, request):
+        qs = super(LocationAdmin, self).get_queryset(request)
+        qs = qs.annotate(events=Count("event"))
+        return qs
+
+    def events(self, obj):
+        return obj.event_set.count()
+
+    events.admin_order_field = "events"
 
 
 class ArtistAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "wiki_page_id",
-        "wiki_tries",
+        "slug",
+        "profile",
+        "events",
         "created",
         "updated",
     ]
     search_fields = ["name"]
 
-    def wiki_page_id(self, obj):
-        return obj.metadata
+    def events(self, obj):
+        return obj.event_set.count()
 
 
 class EventAdmin(admin.ModelAdmin):
     list_display = [
-        "pk",
         "name",
         "venue",
+        "url",
         "gmaps_tries",
+        "artist_tries",
         "location_pk",
         "location",
         "artist",
+        "provider",
         "start_date",
         "created",
         "updated",
+        "pk",
     ]
     search_fields = ["pk", "name", "slug", "venue"]
 
     def artist(self, obj):
-        return obj.artists.first()
+        return [artist.name for artist in obj.artists.all()]
 
     def location_pk(self, obj):
         if obj.location:
