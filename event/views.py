@@ -10,7 +10,7 @@ from .serializer import (
     LocationSerializer,
     MetadataSerializer,
     ArtistSerializer,
-    # EventRankSerializer,
+    EventRankSerializer,
 )
 from .filters import EventFilter, LocationFilter, ArtistFilter
 
@@ -37,14 +37,14 @@ class EventViewSet(
         return self.partial_update(request, *args, **kwargs)
 
 
-# class EventRankViewSet(
-#     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
-# ):
-#     queryset = Event.objects.all()
-#     serializer_class = EventRankSerializer
+class EventRankViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
+):
+    queryset = Event.objects.all()
+    serializer_class = EventRankSerializer
 
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class LocationViewSet(
@@ -64,9 +64,6 @@ class LocationViewSet(
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-
-    # def put(self, request, *args, **kwargs):
-    #     return self.partial_update(request, *args, **kwargs)
 
 
 class ArtistViewSet(

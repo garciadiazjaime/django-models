@@ -80,13 +80,14 @@ class MetadataSerializer(serializers.ModelSerializer):
 
 
 class LocationSerializer(serializers.ModelSerializer):
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
     slug = serializers.CharField(read_only=True)
     event = serializers.PrimaryKeyRelatedField(
         queryset=Event.objects.all(), write_only=True
     )
-    # gmaps = GMapsLocationSerializer(required=False)
     meta_tries = serializers.IntegerField(required=False)
-    # metadata = MetadataSerializer(read_only=True)
+    metadata = MetadataSerializer(read_only=True)
 
     class Meta:
         model = Location
@@ -102,6 +103,7 @@ class LocationSerializer(serializers.ModelSerializer):
             "pk",
             "meta_tries",
             "website",
+            "metadata",
         ]
 
     def create(self, validated_data):
@@ -119,11 +121,6 @@ class LocationSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        # if "wiki_tries" in validated_data:
-        #     instance.wiki_tries = instance.wiki_tries + 1
-        # else:
-        # instance.gmaps_tries = instance.gmaps_tries + 1
-
         if validated_data.get("meta_tries"):
             instance.meta_tries = instance.meta_tries + 1
 
@@ -131,29 +128,11 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class ArtistSerializer(serializers.ModelSerializer):
+    metadata = MetadataSerializer(read_only=True)
+
     class Meta:
         model = Artist
-        fields = ["pk", "name", "slug"]
-
-
-#     def create(self, validated_data):
-#         event = validated_data.pop("event")
-
-#         name = validated_data.pop("name")
-#         instance, _ = Artist.objects.update_or_create(name=name)
-
-#         Metadata.objects.update_or_create(artist=instance, defaults=validated_data)
-
-#         event.artists.add(instance)
-#         event.artist_tries = event.artist_tries + 1
-#         event.save()
-
-#         return instance
-
-#     def update(self, instance, validated_data):
-#         instance.wiki_tries = instance.wiki_tries + 1
-#         instance.save()
-#         return instance
+        fields = ["pk", "name", "slug", "metadata"]
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -219,50 +198,53 @@ class EventSerializer(serializers.ModelSerializer):
         return instance
 
 
-# class EventRankSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(source="artist.name", read_only=True)
+class EventRankSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True)
 
-#     class Meta:
-#         model = Event
-#         fields = [
-#             "name",
-#             "rank",
-#             "start_date",
-#             "pk",
-#         ]
+    class Meta:
+        model = Event
+        fields = [
+            "name",
+            "rank",
+            "start_date",
+            "pk",
+        ]
 
-#     def create(self, validated_data):
-#         for event in Event.objects.filter(start_date__gte=validated_data["start_date"]):
-#             rank = 0
-#             metadata = event.location.metadata
-#             if metadata:
-#                 if (
-#                     metadata.twitter
-#                     or metadata.facebook
-#                     or metadata.youtube
-#                     or metadata.instagram
-#                     or metadata.tiktok
-#                 ):
-#                     rank += 100
+    def create(self, validated_data):
+        for event in Event.objects.filter(
+            location__isnull=False, start_date__gte=validated_data["start_date"]
+        ):
+            rank = 0
+            metadata = event.location.metadata
+            if metadata:
+                if (
+                    metadata.twitter
+                    or metadata.facebook
+                    or metadata.youtube
+                    or metadata.instagram
+                    or metadata.tiktok
+                ):
+                    rank += 100
 
-#                 if metadata.soundcloud or metadata.spotify or metadata.appleMusic:
-#                     rank += 1000
+                if metadata.soundcloud or metadata.spotify or metadata.appleMusic:
+                    rank += 1000
 
-#             metadata = event.artist.metadata
-#             if metadata:
-#                 if (
-#                     metadata.twitter
-#                     or metadata.facebook
-#                     or metadata.youtube
-#                     or metadata.instagram
-#                     or metadata.tiktok
-#                 ):
-#                     rank += 100
+            for artist in event.artists.all():
+                metadata = artist.metadata
+                if metadata:
+                    if (
+                        metadata.twitter
+                        or metadata.facebook
+                        or metadata.youtube
+                        or metadata.instagram
+                        or metadata.tiktok
+                    ):
+                        rank += 100
 
-#                 if metadata.soundcloud or metadata.spotify or metadata.appleMusic:
-#                     rank += 1000
+                    if metadata.soundcloud or metadata.spotify or metadata.appleMusic:
+                        rank += 1000
 
-#             event.rank = rank
-#             event.save()
+            event.rank = rank
+            event.save()
 
-#         return Event.objects.order_by("-rank").first()
+        return Event.objects.order_by("-rank").first()
