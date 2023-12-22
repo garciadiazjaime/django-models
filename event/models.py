@@ -4,6 +4,21 @@ from autoslug import AutoSlugField
 METADATA_CHOICES = [("ARTIST", "ARTIST"), ("LOCATION", "LOCATION")]
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=240)
+
+
+class Spotify(models.Model):
+    followers = models.IntegerField(default=0)
+    genres = models.ManyToManyField(Genre, blank=True)
+    popularity = models.IntegerField(default=0)
+    url = models.URLField(default="", blank=True)
+    tries = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.url
+
+
 class Metadata(models.Model):
     slug = models.SlugField(max_length=240)
     type = models.CharField(max_length=24, choices=METADATA_CHOICES)
@@ -15,8 +30,11 @@ class Metadata(models.Model):
     instagram = models.URLField(default="", blank=True)
     tiktok = models.URLField(default="", blank=True)
     soundcloud = models.URLField(default="", blank=True)
-    spotify = models.URLField(default="", blank=True)
     appleMusic = models.URLField(default="", blank=True)
+
+    spotify = models.ForeignKey(
+        Spotify, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

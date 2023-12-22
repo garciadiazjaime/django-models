@@ -1,7 +1,17 @@
 from django.contrib import admin
 from django.db.models import Count
 
-from .models import Location, Event, Artist, Metadata
+from .models import Location, Event, Artist, Metadata, Spotify
+
+
+class SpotifyAdmin(admin.ModelAdmin):
+    list_display = ["artist", "tries", "genres_list", "followers", "popularity", "url"]
+
+    def genres_list(self, obj):
+        return ",".join(obj.genres.all())
+
+    def artist(self, obj):
+        return obj.metadata_set.first().artist_set.first()
 
 
 class MetadataAdmin(admin.ModelAdmin):
@@ -12,6 +22,7 @@ class MetadataAdmin(admin.ModelAdmin):
         "social",
         "music",
         "website",
+        "spotify",
         "created",
         "updated",
     ]
@@ -105,6 +116,7 @@ class EventAdmin(admin.ModelAdmin):
             return obj.location.pk
 
 
+admin.site.register(Spotify, SpotifyAdmin)
 admin.site.register(Metadata, MetadataAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Artist, ArtistAdmin)

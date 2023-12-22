@@ -1,5 +1,6 @@
+from django.db.models import Q
 from django_filters import rest_framework as filters
-from .models import Event, Location, Artist
+from .models import Event, Location, Artist, Metadata
 
 
 class EventFilter(filters.FilterSet):
@@ -43,6 +44,27 @@ class LocationFilter(filters.FilterSet):
 
 
 class ArtistFilter(filters.FilterSet):
+    spotify_empty = filters.BooleanFilter(
+        field_name="spotify", method="metadata_empty_filter"
+    )
+
+    def metadata_empty_filter(self, queryset, name, value):
+        return queryset.filter(metadata__spotify__isnull=value)
+
     class Meta:
         model = Artist
-        fields = ["slug"]
+        fields = ["spotify_empty", "slug"]
+
+
+class MetadataFilter(filters.FilterSet):
+    spotify_empty = filters.BooleanFilter(field_name="spotify", method="empty_filter")
+
+    def empty_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(**{name: ""})
+
+        return queryset.filter(~Q(**{name: ""}))
+
+    class Meta:
+        model = Metadata
+        fields = ["spotify_empty", "type"]

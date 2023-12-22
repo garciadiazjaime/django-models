@@ -4,15 +4,16 @@ from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as filters
 
 
-from .models import Event, Location, Artist, Metadata
+from .models import Event, Location, Artist, Metadata, Spotify
 from .serializer import (
     EventSerializer,
     LocationSerializer,
     MetadataSerializer,
     ArtistSerializer,
     EventRankSerializer,
+    SpotifySerializer,
 )
-from .filters import EventFilter, LocationFilter, ArtistFilter
+from .filters import EventFilter, LocationFilter, ArtistFilter, MetadataFilter
 
 
 class EventViewSet(
@@ -84,6 +85,23 @@ class MetadataViewSet(
 ):
     queryset = Metadata.objects.all()
     serializer_class = MetadataSerializer
+    filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
+    filterset_class = MetadataFilter
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+class SpotifyViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    generics.GenericAPIView,
+):
+    queryset = Spotify.objects.all()
+    serializer_class = SpotifySerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

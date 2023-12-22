@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Artist, Event, Location, Metadata
+from .models import Artist, Event, Location, Metadata, Spotify
 
 
 class MetadataSerializer(serializers.ModelSerializer):
@@ -16,6 +16,8 @@ class MetadataSerializer(serializers.ModelSerializer):
     )
     name = serializers.CharField(write_only=True, required=False)
     profile = serializers.CharField(write_only=True, required=False)
+    spotify_url = serializers.CharField(write_only=True, required=False)
+    spotify_url_read = serializers.CharField(read_only=True, source="spotify.url")
 
     class Meta:
         model = Metadata
@@ -29,6 +31,8 @@ class MetadataSerializer(serializers.ModelSerializer):
             "tiktok",
             "soundcloud",
             "spotify",
+            "spotify_url",
+            "spotify_url_read",
             "appleMusic",
             "event",
             "artist",
@@ -64,8 +68,12 @@ class MetadataSerializer(serializers.ModelSerializer):
             name = validated_data.pop("name")
             profile = validated_data.pop("profile")
 
+            spotify_url = validated_data.pop("spotify_url")
+            if spotify_url:
+                spotify, _ = Spotify.objects.update_or_create(url=spotify_url)
+
             instance, _ = Metadata.objects.update_or_create(
-                slug=slug, defaults=validated_data
+                slug=slug, spotify=spotify, defaults=validated_data
             )
 
             artist, _ = Artist.objects.update_or_create(
@@ -248,3 +256,18 @@ class EventRankSerializer(serializers.ModelSerializer):
             event.save()
 
         return Event.objects.order_by("-rank").first()
+
+
+class SpotifySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Spotify
+        fields = [
+            "pk",
+            "followers",
+            "popularity",
+        ]
+
+    def update(self, instance, validated_data):
+        instance = Spotify.objects.update(**validated_data)
+
+        return instance

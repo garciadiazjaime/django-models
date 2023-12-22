@@ -6,6 +6,7 @@ from .views import (
     MetadataViewSet,
     ArtistViewSet,
     EventRankViewSet,
+    SpotifyViewSet,
 )
 
 
@@ -16,4 +17,5 @@ urlpatterns = [
     path("metadata/", MetadataViewSet.as_view()),
     path("artists/", ArtistViewSet.as_view()),
     path("rank/", EventRankViewSet.as_view()),
+    path("spotify/<int:pk>/", SpotifyViewSet.as_view()),
 ]
