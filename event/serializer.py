@@ -1,6 +1,20 @@
 from rest_framework import serializers
 
-from .models import Artist, Event, Location, Metadata, Spotify
+from .models import Artist, Event, Location, Metadata, Spotify, Genre
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ["name"]
+
+
+class SpotifySerializer(serializers.ModelSerializer):
+    genres = GenreSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Spotify
+        fields = ["pk", "followers", "genres", "popularity", "url", "tries"]
 
 
 class MetadataSerializer(serializers.ModelSerializer):
@@ -18,6 +32,7 @@ class MetadataSerializer(serializers.ModelSerializer):
     profile = serializers.CharField(write_only=True, required=False)
     spotify_url = serializers.CharField(write_only=True, required=False)
     spotify_url_read = serializers.CharField(read_only=True, source="spotify.url")
+    spotify = SpotifySerializer(read_only=True)
 
     class Meta:
         model = Metadata
@@ -68,8 +83,9 @@ class MetadataSerializer(serializers.ModelSerializer):
             name = validated_data.pop("name")
             profile = validated_data.pop("profile")
 
-            spotify_url = validated_data.pop("spotify_url")
-            if spotify_url:
+            spotify = None
+            if "spotify_url" in validated_data:
+                spotify_url = validated_data.pop("spotify_url")
                 spotify, _ = Spotify.objects.update_or_create(url=spotify_url)
 
             instance, _ = Metadata.objects.update_or_create(
@@ -259,15 +275,30 @@ class EventRankSerializer(serializers.ModelSerializer):
 
 
 class SpotifySerializer(serializers.ModelSerializer):
+    image = serializers.URLField(write_only=True, required=False)
+    genres = serializers.JSONField(write_only=True, required=False)
+
     class Meta:
         model = Spotify
         fields = [
             "pk",
             "followers",
             "popularity",
+            "image",
+            "genres",
         ]
 
     def update(self, instance, validated_data):
-        instance = Spotify.objects.update(**validated_data)
+        genres = validated_data.get("genres")
+        if genres:
+            for genre in genres:
+                instance_genre, _ = Genre.objects.update_or_create(name=genre)
+                instance.genres.add(instance_genre)
+
+        instance.followers = validated_data.get("followers", instance.followers)
+        instance.popularity = validated_data.get("popularity", instance.popularity)
+        instance.image = validated_data.get("image", instance.image)
+        instance.tries = instance.tries + 1
+        instance.save()
 
         return instance

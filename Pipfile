@@ -12,6 +12,7 @@ mysqlclient = "*"
 django-environ = "*"
 nltk = "*"
 numpy = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 

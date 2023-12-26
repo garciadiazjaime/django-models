@@ -7,6 +7,12 @@ METADATA_CHOICES = [("ARTIST", "ARTIST"), ("LOCATION", "LOCATION")]
 class Genre(models.Model):
     name = models.CharField(max_length=240)
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
 
 class Spotify(models.Model):
     followers = models.IntegerField(default=0)
@@ -14,6 +20,10 @@ class Spotify(models.Model):
     popularity = models.IntegerField(default=0)
     url = models.URLField(default="", blank=True)
     tries = models.PositiveSmallIntegerField(default=0)
+    image = models.URLField(default="", blank=True, max_length=240)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.url
@@ -85,7 +95,7 @@ class Event(models.Model):
     name = models.CharField(max_length=240)
     description = models.TextField(default="", blank=True)
     image = models.URLField()
-    url = models.URLField()
+    url = models.URLField(max_length=420)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     provider = models.CharField(max_length=240)

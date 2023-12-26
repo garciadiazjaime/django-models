@@ -75,6 +75,7 @@ class ArtistViewSet(
     serializer_class = ArtistSerializer
     filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     filterset_class = ArtistFilter
+    ordering_fields = ["metadata__spotify__tries"]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -96,7 +97,6 @@ class MetadataViewSet(
 
 
 class SpotifyViewSet(
-    mixins.ListModelMixin,
     mixins.UpdateModelMixin,
     generics.GenericAPIView,
 ):
@@ -104,4 +104,4 @@ class SpotifyViewSet(
     serializer_class = SpotifySerializer
 
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.update(request, *args, **kwargs)

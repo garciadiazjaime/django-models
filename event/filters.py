@@ -44,16 +44,22 @@ class LocationFilter(filters.FilterSet):
 
 
 class ArtistFilter(filters.FilterSet):
-    spotify_empty = filters.BooleanFilter(
-        field_name="spotify", method="metadata_empty_filter"
-    )
+    spotify_empty = filters.BooleanFilter(method="spotify_empty_filter")
+    spotify_tries = filters.NumberFilter(method="spotify_tries_filter")
+    spotify_genres_empty = filters.BooleanFilter(method="spotify_genres_empty_filter")
 
-    def metadata_empty_filter(self, queryset, name, value):
+    def spotify_genres_empty_filter(self, queryset, name, value):
+        return queryset.filter(metadata__spotify__genres__isnull=value)
+
+    def spotify_empty_filter(self, queryset, name, value):
         return queryset.filter(metadata__spotify__isnull=value)
+
+    def spotify_tries_filter(self, queryset, name, value):
+        return queryset.filter(metadata__spotify__tries__lt=value)
 
     class Meta:
         model = Artist
-        fields = ["spotify_empty", "slug"]
+        fields = ["spotify_empty", "spotify_tries", "spotify_genres_empty", "slug"]
 
 
 class MetadataFilter(filters.FilterSet):

@@ -24,4 +24,5 @@ urlpatterns = [
     path("api/places/", include(place_routes)),
     path("gifts/", include("gift.urls")),
     path("admin/", admin.site.urls),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
