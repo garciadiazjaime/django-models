@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as filters
+from django.utils import timezone
 
 
 from .models import Event, Location, Artist, Metadata, Spotify
@@ -76,6 +77,21 @@ class ArtistViewSet(
     filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     filterset_class = ArtistFilter
     ordering_fields = ["metadata__spotify__tries"]
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class ArtistMetadataViewSet(
+    mixins.ListModelMixin,
+    generics.GenericAPIView,
+):
+    queryset = Artist.objects.filter(
+        event__start_date__gt=timezone.now(),
+        event__location__isnull=False,
+        metadata__spotify__genres__isnull=False,
+    ).distinct()
+    serializer_class = ArtistSerializer
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

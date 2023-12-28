@@ -97,7 +97,7 @@ class Event(models.Model):
     image = models.URLField()
     url = models.URLField(max_length=420)
     start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True, blank=True)
     provider = models.CharField(max_length=240)
 
     venue = models.CharField(max_length=240)
