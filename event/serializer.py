@@ -18,25 +18,10 @@ class SpotifySerializer(serializers.ModelSerializer):
 
 
 class MetadataSerializer(serializers.ModelSerializer):
-    location = serializers.PrimaryKeyRelatedField(
-        queryset=Location.objects.all(), write_only=True, required=False
-    )
-
-    event = serializers.PrimaryKeyRelatedField(
-        queryset=Event.objects.all(), write_only=True, required=False
-    )
-    artist = serializers.PrimaryKeyRelatedField(
-        queryset=Artist.objects.all(), write_only=True, required=False
-    )
-    name = serializers.CharField(write_only=True, required=False)
-    profile = serializers.CharField(write_only=True, required=False)
-    spotify_url = serializers.CharField(write_only=True, required=False)
-    spotify_url_read = serializers.CharField(read_only=True, source="spotify.url")
-    spotify = SpotifySerializer(read_only=True)
-
     class Meta:
         model = Metadata
         fields = [
+            "pk",
             "website",
             "image",
             "twitter",
@@ -45,17 +30,8 @@ class MetadataSerializer(serializers.ModelSerializer):
             "instagram",
             "tiktok",
             "soundcloud",
-            "spotify",
-            "spotify_url",
-            "spotify_url_read",
+            # "spotify",
             "appleMusic",
-            "event",
-            "artist",
-            "location",
-            "slug",
-            "profile",
-            "name",
-            "type",
         ]
 
     def create(self, validated_data):
@@ -106,57 +82,29 @@ class MetadataSerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField()
     lng = serializers.FloatField()
-    slug = serializers.CharField(read_only=True)
-    event = serializers.PrimaryKeyRelatedField(
-        queryset=Event.objects.all(), write_only=True
-    )
-    meta_tries = serializers.IntegerField(required=False)
-    metadata = MetadataSerializer(read_only=True)
+    metadata = MetadataSerializer()
 
     class Meta:
         model = Location
         fields = [
+            "pk",
             "name",
             "address",
             "lat",
             "lng",
             "place_id",
-            "slug",
-            "slug_venue",
-            "event",
-            "pk",
-            "meta_tries",
             "website",
+            "slug_venue",
             "metadata",
         ]
 
-    def create(self, validated_data):
-        event = validated_data.get("event")
-
-        place_id = validated_data.get("place_id")
-        instance, _ = Location.objects.update_or_create(
-            place_id=place_id, defaults=validated_data
-        )
-
-        event.location = instance
-        event.gmaps_tries = event.gmaps_tries + 1
-        event.save()
-
-        return instance
-
-    def update(self, instance, validated_data):
-        if validated_data.get("meta_tries"):
-            instance.meta_tries = instance.meta_tries + 1
-
-        return instance
-
 
 class ArtistSerializer(serializers.ModelSerializer):
-    metadata = MetadataSerializer(read_only=True)
+    metadata = MetadataSerializer(required=False)
 
     class Meta:
         model = Artist
-        fields = ["pk", "name", "slug", "metadata"]
+        fields = ["pk", "name", "profile", "metadata"]
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -218,6 +166,70 @@ class EventSerializer(serializers.ModelSerializer):
                 instance.artists.add(artist)
 
             instance.save()
+
+        return instance
+
+
+class EventProcessedSerializer(serializers.ModelSerializer):
+    location = LocationSerializer()
+    artists = ArtistSerializer(required=False, many=True)
+
+    class Meta:
+        model = Event
+        fields = [
+            "name",
+            "description",
+            "image",
+            "url",
+            "start_date",
+            "end_date",
+            "provider",
+            "venue",
+            "address",
+            "city",
+            "location",
+            "artists",
+        ]
+
+    def create(self, validated_data):
+        pre_location = validated_data.pop("location")
+        pre_location_meta = (
+            pre_location.pop("metadata") if "metadata" in pre_location else None
+        )
+        pre_artists = (
+            validated_data.pop("artists") if "artists" in validated_data else None
+        )
+
+        location, _ = Location.objects.update_or_create(**pre_location)
+
+        if pre_location_meta:
+            location_meta, _ = Metadata.objects.update_or_create(
+                type="LOCATION", slug=location.slug, **pre_location_meta
+            )
+
+            location.metadata = location_meta
+            location.save()
+
+        instance, _ = Event.objects.update_or_create(
+            location=location, **validated_data
+        )
+
+        for pre_artist in pre_artists:
+            pre_artist_meta = (
+                pre_artist.pop("metadata") if "metadata" in pre_artist else None
+            )
+
+            artist, _ = Artist.objects.update_or_create(**pre_artist)
+
+            if pre_artist_meta:
+                artist_meta, _ = Metadata.objects.update_or_create(
+                    type="ARTIST", slug=artist.slug, **pre_artist_meta
+                )
+
+                artist.metadata = artist_meta
+                artist.save()
+
+            instance.artists.add(artist)
 
         return instance
 

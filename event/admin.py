@@ -33,11 +33,11 @@ class SpotifyAdmin(admin.ModelAdmin):
 class MetadataAdmin(admin.ModelAdmin):
     list_display = [
         "slug",
+        "website",
         "type",
         "ref",
         "social",
         "music",
-        "website",
         "spotify",
         "image",
         "created",
@@ -70,14 +70,12 @@ class MetadataAdmin(admin.ModelAdmin):
 class LocationAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "slug",
         "slug_venue",
         "events",
         "metadata",
-        "meta_tries",
-        "pk",
         "created",
         "updated",
+        "pk",
     ]
     search_fields = ["name", "pk"]
 
@@ -112,8 +110,6 @@ class EventAdmin(admin.ModelAdmin):
         "name",
         "venue",
         "url",
-        "gmaps_tries",
-        "artist_tries",
         "location_pk",
         "location",
         "artist",

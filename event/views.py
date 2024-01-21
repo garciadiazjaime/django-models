@@ -8,6 +8,7 @@ from django.utils import timezone
 from .models import Event, Location, Artist, Metadata, Spotify
 from .serializer import (
     EventSerializer,
+    EventProcessedSerializer,
     LocationSerializer,
     MetadataSerializer,
     ArtistSerializer,
@@ -37,6 +38,17 @@ class EventViewSet(
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class EventProcessedViewSet(
+    mixins.CreateModelMixin,
+    generics.GenericAPIView,
+):
+    queryset = Event.objects.all()
+    serializer_class = EventProcessedSerializer
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class EventRankViewSet(

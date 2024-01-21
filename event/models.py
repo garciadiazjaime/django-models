@@ -33,7 +33,7 @@ class Metadata(models.Model):
     slug = models.SlugField(max_length=240)
     type = models.CharField(max_length=24, choices=METADATA_CHOICES)
     website = models.URLField(default="", blank=True)
-    image = models.URLField(default="", blank=True, max_length=240)
+    image = models.URLField(default="", blank=True, max_length=420)
     twitter = models.URLField(default="", blank=True)
     facebook = models.URLField(default="", blank=True)
     youtube = models.URLField(default="", blank=True)
@@ -50,7 +50,7 @@ class Metadata(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.slug
+        return self.website
 
 
 class Artist(models.Model):

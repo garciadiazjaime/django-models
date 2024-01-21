@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     EventViewSet,
+    EventProcessedViewSet,
     LocationViewSet,
     MetadataViewSet,
     ArtistViewSet,
@@ -13,6 +14,7 @@ from .views import (
 
 urlpatterns = [
     path("", EventViewSet.as_view()),
+    path("processed/", EventProcessedViewSet.as_view()),
     path("<int:pk>/", EventViewSet.as_view()),
     path("locations/", LocationViewSet.as_view()),
     path("metadata/", MetadataViewSet.as_view()),
