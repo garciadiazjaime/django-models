@@ -8,54 +8,27 @@ from django.utils import timezone
 from .models import Event, Location, Artist, Metadata, Spotify
 from .serializer import (
     EventSerializer,
-    EventProcessedSerializer,
     LocationSerializer,
     MetadataSerializer,
     ArtistSerializer,
-    EventRankSerializer,
     SpotifySerializer,
 )
 from .filters import EventFilter, LocationFilter, ArtistFilter, MetadataFilter
 
 
 class EventViewSet(
-    mixins.ListModelMixin,
     mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
     generics.GenericAPIView,
 ):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     filterset_class = EventFilter
-    ordering_fields = ["rank", "gmaps_tries"]
+    ordering_fields = ["rank"]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-
-class EventProcessedViewSet(
-    mixins.CreateModelMixin,
-    generics.GenericAPIView,
-):
-    queryset = Event.objects.all()
-    serializer_class = EventProcessedSerializer
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-
-class EventRankViewSet(
-    mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
-):
-    queryset = Event.objects.all()
-    serializer_class = EventRankSerializer
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -101,7 +74,7 @@ class ArtistMetadataViewSet(
     queryset = Artist.objects.filter(
         event__start_date__gt=timezone.now(),
         event__location__isnull=False,
-        metadata__spotify__genres__isnull=False,
+        spotify__genres__isnull=False,
     ).distinct()
     serializer_class = ArtistSerializer
 

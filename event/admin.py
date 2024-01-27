@@ -7,27 +7,31 @@ from .models import Location, Event, Artist, Metadata, Spotify, Genre
 class GenreAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "artists",
         "created",
         "updated",
     ]
+    search_fields = ["name"]
+
+    def artists(self, obj):
+        return obj.spotify_set.count()
 
 
 class SpotifyAdmin(admin.ModelAdmin):
     list_display = [
-        "artist",
-        "tries",
+        "name",
         "genres_list",
         "followers",
         "popularity",
         "url",
         "image",
+        "created",
+        "updated",
     ]
+    search_fields = ["name"]
 
     def genres_list(self, obj):
         return ",".join(obj.genres.values_list("name", flat=True))
-
-    def artist(self, obj):
-        return obj.metadata_set.first().artist_set.first()
 
 
 class MetadataAdmin(admin.ModelAdmin):
@@ -35,7 +39,6 @@ class MetadataAdmin(admin.ModelAdmin):
         "slug",
         "website",
         "type",
-        "ref",
         "social",
         "music",
         "spotify",
@@ -44,15 +47,6 @@ class MetadataAdmin(admin.ModelAdmin):
         "updated",
     ]
     search_fields = ["slug"]
-
-    def ref(self, obj):
-        if obj.location_set.count():
-            return "location"
-
-        if obj.artist_set.count():
-            return "artist"
-
-        return None
 
     def social(self, obj):
         if obj.twitter or obj.facebook or obj.instagram or obj.tiktok:
@@ -109,17 +103,16 @@ class EventAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "venue",
+        "rank",
         "url",
-        "location_pk",
         "location",
         "artist",
         "provider",
         "start_date",
-        "created",
         "updated",
         "pk",
     ]
-    search_fields = ["pk", "name", "slug", "venue"]
+    search_fields = ["pk", "name", "slug", "venue", "provider"]
 
     def artist(self, obj):
         return [artist.name for artist in obj.artists.all()]

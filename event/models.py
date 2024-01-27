@@ -15,18 +15,18 @@ class Genre(models.Model):
 
 
 class Spotify(models.Model):
+    name = models.CharField(max_length=240)
     followers = models.IntegerField(default=0)
     genres = models.ManyToManyField(Genre, blank=True)
     popularity = models.IntegerField(default=0)
     url = models.URLField(default="", blank=True)
-    tries = models.PositiveSmallIntegerField(default=0)
     image = models.URLField(default="", blank=True, max_length=240)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.url
+        return self.name
 
 
 class Metadata(models.Model):
@@ -41,10 +41,7 @@ class Metadata(models.Model):
     tiktok = models.URLField(default="", blank=True)
     soundcloud = models.URLField(default="", blank=True)
     appleMusic = models.URLField(default="", blank=True)
-
-    spotify = models.ForeignKey(
-        Spotify, on_delete=models.SET_NULL, null=True, blank=True
-    )
+    spotify = models.URLField(default="", blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -56,9 +53,12 @@ class Metadata(models.Model):
 class Artist(models.Model):
     name = models.CharField(max_length=240)
     profile = models.URLField()
+    spotify = models.ForeignKey(
+        Spotify, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     metadata = models.ForeignKey(
-        Metadata, on_delete=models.SET_NULL, null=True, blank=True
+        Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
@@ -75,11 +75,10 @@ class Location(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     lng = models.DecimalField(max_digits=9, decimal_places=6)
     place_id = models.CharField(max_length=50)
-    website = models.URLField(default="")
+    website = models.URLField(null=True, blank=True, default="")
 
-    meta_tries = models.PositiveSmallIntegerField(default=0)
     metadata = models.ForeignKey(
-        Metadata, on_delete=models.SET_NULL, null=True, blank=True
+        Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
@@ -109,10 +108,8 @@ class Event(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    gmaps_tries = models.PositiveSmallIntegerField(default=0)
 
     artists = models.ManyToManyField(Artist, blank=True)
-    artist_tries = models.PositiveSmallIntegerField(default=0)
 
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
