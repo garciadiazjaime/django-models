@@ -82,10 +82,11 @@ class LocationSerializer(serializers.ModelSerializer):
 class ArtistSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer(required=False, allow_null=True)
     spotify = SpotifySerializer(required=False, allow_null=True)
+    genres = GenreSerializer(many=True)
 
     class Meta:
         model = Artist
-        fields = ["pk", "name", "profile", "metadata", "spotify"]
+        fields = ["pk", "name", "profile", "metadata", "spotify", "genres"]
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -158,6 +159,9 @@ class EventSerializer(serializers.ModelSerializer):
             pre_artist_spotify = (
                 pre_artist.pop("spotify") if "spotify" in pre_artist else None
             )
+            pre_artist_genres = (
+                pre_artist.pop("genres") if "genres" in pre_artist else None
+            )
 
             artist, _ = Artist.objects.update_or_create(**pre_artist)
 
@@ -184,6 +188,11 @@ class EventSerializer(serializers.ModelSerializer):
                 for pre_genre in pre_spotify_genres:
                     genre, _ = Genre.objects.update_or_create(**pre_genre)
                     artist_spotify.genres.add(genre)
+
+            if pre_artist_genres:
+                for pre_genre in pre_artist_genres:
+                    genre, _ = Genre.objects.update_or_create(**pre_genre)
+                    artist.genres.add(genre)
 
             instance.artists.add(artist)
 
