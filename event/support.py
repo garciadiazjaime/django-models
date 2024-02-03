@@ -1,3 +1,15 @@
+def get_location_rank(metadata):
+    rank = 0
+    if not metadata:
+        return rank
+
+    for key in metadata.keys():
+        if metadata[key]:
+            rank += 100
+
+    return rank
+
+
 def get_rank(event):
     rank = 0
     metadata = event.location.metadata

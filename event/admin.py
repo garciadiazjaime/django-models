@@ -1,7 +1,16 @@
 from django.contrib import admin
 from django.db.models import Count
 
-from .models import Location, Event, Artist, Metadata, Spotify, Genre
+from .models import Location, Event, Artist, Metadata, Spotify, Genre, Slug
+
+
+class SlugAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "created",
+        "updated",
+    ]
+    search_fields = ["name"]
 
 
 class GenreAdmin(admin.ModelAdmin):
@@ -64,11 +73,12 @@ class MetadataAdmin(admin.ModelAdmin):
 class LocationAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "slug_venue",
+        "rank",
         "events",
-        "metadata",
-        "created",
+        "has_metadata",
+        "provider",
         "updated",
+        "place_id",
         "pk",
     ]
     search_fields = ["name", "pk"]
@@ -80,6 +90,14 @@ class LocationAdmin(admin.ModelAdmin):
 
     def events(self, obj):
         return obj.event_set.count()
+
+    def has_metadata(self, obj):
+        return 1 if obj.metadata else 0
+
+    def provider(self, obj):
+        return ", ".join(
+            obj.event_set.all().values_list("provider", flat=True).distinct()
+        )
 
     events.admin_order_field = "events"
 
@@ -102,10 +120,12 @@ class ArtistAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "venue",
         "rank",
         "url",
+        "venue",
         "location",
+        "location_pk",
+        "location_id",
         "artist",
         "provider",
         "start_date",
@@ -121,6 +141,9 @@ class EventAdmin(admin.ModelAdmin):
         if obj.location:
             return obj.location.pk
 
+    def location_id(self, obj):
+        return obj.location.place_id
+
 
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Spotify, SpotifyAdmin)
@@ -128,5 +151,6 @@ admin.site.register(Metadata, MetadataAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(Slug, SlugAdmin)
 
 from django.contrib import admin

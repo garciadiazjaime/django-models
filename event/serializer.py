@@ -1,7 +1,13 @@
 from rest_framework import serializers
 
-from .models import Artist, Event, Location, Metadata, Spotify, Genre
-from .support import get_rank
+from .models import Artist, Event, Location, Metadata, Spotify, Genre, Slug
+from .support import get_rank, get_location_rank
+
+
+class SlugSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slug
+        fields = ["name"]
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -27,10 +33,15 @@ class SpotifySerializer(serializers.ModelSerializer):
 
 
 class MetadataSerializer(serializers.ModelSerializer):
+    slug = serializers.CharField(read_only=True)
+    type = serializers.CharField(read_only=True)
+
     class Meta:
         model = Metadata
         fields = [
             "pk",
+            "slug",
+            "type",
             "website",
             "image",
             "twitter",
@@ -48,17 +59,21 @@ class LocationSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField()
     lng = serializers.FloatField()
     metadata = MetadataSerializer()
+    slug = serializers.CharField(read_only=True)
+    slug_venue = SlugSerializer(many=True)
 
     class Meta:
         model = Location
         fields = [
             "pk",
             "name",
+            "slug",
             "address",
             "lat",
             "lng",
             "place_id",
             "website",
+            "url",
             "slug_venue",
             "metadata",
         ]
@@ -76,10 +91,15 @@ class ArtistSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     location = LocationSerializer()
     artists = ArtistSerializer(required=False, many=True)
+    rank = serializers.IntegerField(read_only=True)
+    slug = serializers.CharField(read_only=True)
 
     class Meta:
         model = Event
         fields = [
+            "pk",
+            "rank",
+            "slug",
             "name",
             "description",
             "image",
@@ -90,6 +110,8 @@ class EventSerializer(serializers.ModelSerializer):
             "venue",
             "address",
             "city",
+            "price",
+            "buyUrl",
             "location",
             "artists",
         ]
@@ -102,8 +124,18 @@ class EventSerializer(serializers.ModelSerializer):
         pre_artists = (
             validated_data.pop("artists") if "artists" in validated_data else []
         )
+        pre_location_slug_venue = (
+            pre_location.pop("slug_venue") if "slug_venue" in pre_location else []
+        )
 
-        location, _ = Location.objects.update_or_create(**pre_location)
+        place_id = pre_location.pop("place_id")
+        location, _ = Location.objects.update_or_create(
+            place_id=place_id, defaults=pre_location
+        )
+
+        for pre_location_slug in pre_location_slug_venue:
+            slug, _ = Slug.objects.get_or_create(**pre_location_slug)
+            location.slug_venue.add(slug)
 
         if pre_location_meta:
             location_meta, _ = Metadata.objects.update_or_create(
@@ -111,10 +143,12 @@ class EventSerializer(serializers.ModelSerializer):
             )
 
             location.metadata = location_meta
+            location.rank = get_location_rank(pre_location_meta)
             location.save()
 
+        name = validated_data.pop("name")
         instance, _ = Event.objects.update_or_create(
-            location=location, **validated_data
+            name=name, location=location, defaults=validated_data
         )
 
         for pre_artist in pre_artists:

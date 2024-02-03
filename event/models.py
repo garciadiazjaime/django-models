@@ -14,6 +14,16 @@ class Genre(models.Model):
         return self.name
 
 
+class Slug(models.Model):
+    name = models.CharField(max_length=240)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Spotify(models.Model):
     name = models.CharField(max_length=240)
     followers = models.IntegerField(default=0)
@@ -52,7 +62,7 @@ class Metadata(models.Model):
 
 class Artist(models.Model):
     name = models.CharField(max_length=240)
-    profile = models.URLField()
+    profile = models.URLField(default="", blank=True)
     spotify = models.ForeignKey(
         Spotify, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -76,13 +86,16 @@ class Location(models.Model):
     lng = models.DecimalField(max_digits=9, decimal_places=6)
     place_id = models.CharField(max_length=50)
     website = models.URLField(null=True, blank=True, default="")
+    url = models.URLField(null=True, blank=True, default="")
 
     metadata = models.ForeignKey(
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
+    rank = models.PositiveSmallIntegerField(default=0)
+
     slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
-    slug_venue = models.SlugField(max_length=240)
+    slug_venue = models.ManyToManyField(Slug, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -98,6 +111,8 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
     provider = models.CharField(max_length=240)
+    price = models.FloatField(default=0)
+    buyUrl = models.URLField(default="", blank=True)
 
     venue = models.CharField(max_length=240)
     address = models.CharField(max_length=240, default="", blank=True)
