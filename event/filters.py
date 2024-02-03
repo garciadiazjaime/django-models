@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django_filters import rest_framework as filters
-from .models import Event, Location, Artist, Metadata
+from .models import Event, Location, Artist, Metadata, Slug
 
 
 class EventFilter(filters.FilterSet):
@@ -24,9 +24,14 @@ class LocationFilter(filters.FilterSet):
 
     website_empty = filters.BooleanFilter(field_name="website", method="empty_filter")
 
+    slug_venue = filters.CharFilter(field_name="slug_venue", method="slug_venue_filter")
+
     def empty_filter(self, queryset, name, value):
         lookup = "__".join([name, "isnull"])
         return queryset.filter(**{lookup: value})
+
+    def slug_venue_filter(self, queryset, name, value):
+        return queryset.filter(slug_venue__name=value)
 
     class Meta:
         model = Location

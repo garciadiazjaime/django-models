@@ -82,7 +82,7 @@ class LocationSerializer(serializers.ModelSerializer):
 class ArtistSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer(required=False, allow_null=True)
     spotify = SpotifySerializer(required=False, allow_null=True)
-    genres = GenreSerializer(many=True)
+    genres = GenreSerializer(many=True, required=False, allow_null=True)
 
     class Meta:
         model = Artist
