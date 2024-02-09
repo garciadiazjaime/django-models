@@ -46,6 +46,7 @@ class SpotifyAdmin(admin.ModelAdmin):
 class MetadataAdmin(admin.ModelAdmin):
     list_display = [
         "slug",
+        "youtube",
         "website",
         "type",
         "social",
@@ -77,6 +78,7 @@ class LocationAdmin(admin.ModelAdmin):
         "events",
         "has_metadata",
         "provider",
+        "sources",
         "updated",
         "place_id",
         "pk",
@@ -94,7 +96,7 @@ class LocationAdmin(admin.ModelAdmin):
     def has_metadata(self, obj):
         return 1 if obj.metadata else 0
 
-    def provider(self, obj):
+    def sources(self, obj):
         return ", ".join(
             obj.event_set.all().values_list("provider", flat=True).distinct()
         )

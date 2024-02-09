@@ -52,6 +52,8 @@ class MetadataSerializer(serializers.ModelSerializer):
             "soundcloud",
             "spotify",
             "appleMusic",
+            "band_camp",
+            "link_tree",
         ]
 
 
@@ -167,7 +169,7 @@ class EventSerializer(serializers.ModelSerializer):
 
             if pre_artist_meta:
                 artist_meta, _ = Metadata.objects.update_or_create(
-                    type="ARTIST", slug=artist.slug, **pre_artist_meta
+                    type="ARTIST", slug=artist.slug, defaults=pre_artist_meta
                 )
 
                 artist.metadata = artist_meta

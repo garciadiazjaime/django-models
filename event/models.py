@@ -52,6 +52,8 @@ class Metadata(models.Model):
     soundcloud = models.URLField(default="", blank=True)
     appleMusic = models.URLField(default="", blank=True)
     spotify = models.URLField(default="", blank=True)
+    band_camp = models.URLField(default="", blank=True)
+    link_tree = models.URLField(default="", blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -88,6 +90,7 @@ class Location(models.Model):
     place_id = models.CharField(max_length=50)
     website = models.URLField(null=True, blank=True, default="")
     url = models.URLField(null=True, blank=True, default="")
+    provider = models.BooleanField(default=False)
 
     metadata = models.ForeignKey(
         Metadata, on_delete=models.CASCADE, null=True, blank=True
@@ -112,7 +115,7 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
     provider = models.CharField(max_length=240)
-    price = models.FloatField(default=0)
+    price = models.FloatField(default=0, null=True, blank=True)
     buyUrl = models.URLField(default="", blank=True)
 
     venue = models.CharField(max_length=240)
