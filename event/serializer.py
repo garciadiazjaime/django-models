@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.serializers import FloatField
 
 from .models import Artist, Event, Location, Metadata, Spotify, Genre, Slug
 from .support import get_rank, get_location_rank
@@ -91,11 +92,23 @@ class ArtistSerializer(serializers.ModelSerializer):
         fields = ["pk", "name", "profile", "metadata", "spotify", "genres"]
 
 
+class BlankFloatField(FloatField):
+    """
+    This accepts an empty string as None
+    """
+
+    def to_internal_value(self, data):
+        if data == "":
+            return None
+        return super().to_internal_value(data)
+
+
 class EventSerializer(serializers.ModelSerializer):
     location = LocationSerializer()
     artists = ArtistSerializer(required=False, many=True)
     rank = serializers.IntegerField(read_only=True)
     slug = serializers.CharField(read_only=True)
+    price = BlankFloatField(required=False, allow_null=True, default=None)
 
     class Meta:
         model = Event
