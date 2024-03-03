@@ -64,7 +64,7 @@ class Metadata(models.Model):
 
 class Artist(models.Model):
     name = models.CharField(max_length=240)
-    profile = models.URLField(default="", blank=True)
+    profile = models.URLField(default="", null=True, blank=True)
     genres = models.ManyToManyField(Genre, blank=True)
     spotify = models.ForeignKey(
         Spotify, on_delete=models.CASCADE, null=True, blank=True
@@ -74,7 +74,9 @@ class Artist(models.Model):
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
-    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
+    slug = AutoSlugField(
+        populate_from="name", editable=True, always_update=True, unique=True
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

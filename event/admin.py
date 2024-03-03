@@ -129,6 +129,7 @@ class EventAdmin(admin.ModelAdmin):
         "location_pk",
         "location_id",
         "artist",
+        "artist_count",
         "provider",
         "start_date",
         "updated",
@@ -138,6 +139,9 @@ class EventAdmin(admin.ModelAdmin):
 
     def artist(self, obj):
         return [artist.name for artist in obj.artists.all()]
+
+    def artist_count(self, obj):
+        return obj.artists.count()
 
     def location_pk(self, obj):
         if obj.location:

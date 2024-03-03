@@ -61,7 +61,7 @@ class MetadataSerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField()
     lng = serializers.FloatField()
-    metadata = MetadataSerializer()
+    metadata = MetadataSerializer(required=False, allow_null=True)
     slug = serializers.CharField(read_only=True)
     slug_venue = SlugSerializer(many=True)
 
@@ -89,7 +89,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Artist
-        fields = ["pk", "name", "profile", "metadata", "spotify", "genres"]
+        fields = ["pk", "name", "profile", "metadata", "spotify", "genres", "slug"]
 
 
 class BlankFloatField(FloatField):
@@ -177,8 +177,11 @@ class EventSerializer(serializers.ModelSerializer):
             pre_artist_genres = (
                 pre_artist.pop("genres") if "genres" in pre_artist else None
             )
+            pre_artist_slug = pre_artist.pop("slug")
 
-            artist, _ = Artist.objects.update_or_create(**pre_artist)
+            artist, _ = Artist.objects.update_or_create(
+                slug=pre_artist_slug, defaults=pre_artist
+            )
 
             if pre_artist_meta:
                 artist_meta, _ = Metadata.objects.update_or_create(
