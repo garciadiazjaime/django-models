@@ -13,6 +13,7 @@ django-environ = "*"
 numpy = "*"
 django-debug-toolbar = "*"
 pandas = "*"
+awsebcli = "*"
 
 [dev-packages]
 
