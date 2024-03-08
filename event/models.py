@@ -74,9 +74,7 @@ class Artist(models.Model):
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
-    slug = AutoSlugField(
-        populate_from="name", editable=True, always_update=True, unique=True
-    )
+    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -126,9 +124,7 @@ class Event(models.Model):
 
     rank = models.PositiveSmallIntegerField(default=0)
 
-    location = models.ForeignKey(
-        Location, on_delete=models.SET_NULL, null=True, blank=True
-    )
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     artists = models.ManyToManyField(Artist, blank=True)
 

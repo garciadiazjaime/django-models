@@ -79,6 +79,7 @@ class LocationSerializer(serializers.ModelSerializer):
             "url",
             "slug_venue",
             "metadata",
+            "provider",
         ]
 
 

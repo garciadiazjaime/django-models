@@ -6,6 +6,7 @@ from .models import Event, Location, Artist, Metadata, Slug
 class EventFilter(filters.FilterSet):
     location_empty = filters.BooleanFilter(field_name="location", method="empty_filter")
     start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
+    end_date = filters.DateFilter(field_name="start_date", lookup_expr="lte")
     artist_empty = filters.BooleanFilter(field_name="artists", method="empty_filter")
 
     def empty_filter(self, queryset, name, value):
@@ -14,7 +15,7 @@ class EventFilter(filters.FilterSet):
 
     class Meta:
         model = Event
-        fields = ["location_empty", "start_date", "provider"]
+        fields = ["location_empty", "start_date", "end_date", "provider"]
 
 
 class LocationFilter(filters.FilterSet):

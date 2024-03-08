@@ -81,9 +81,12 @@ class LocationAdmin(admin.ModelAdmin):
         "sources",
         "updated",
         "place_id",
+        "address",
+        "lat",
+        "lng",
         "pk",
     ]
-    search_fields = ["name", "pk"]
+    search_fields = ["name", "pk", "address", "lat", "lng"]
 
     def get_queryset(self, request):
         qs = super(LocationAdmin, self).get_queryset(request)

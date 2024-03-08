@@ -19,6 +19,7 @@ from .filters import EventFilter, LocationFilter, ArtistFilter, MetadataFilter
 class EventViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     generics.GenericAPIView,
 ):
     queryset = Event.objects.all()
@@ -28,6 +29,9 @@ class EventViewSet(
     ordering_fields = ["rank"]
 
     def get(self, request, *args, **kwargs):
+        if "pk" in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
