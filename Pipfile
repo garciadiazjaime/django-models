@@ -13,6 +13,7 @@ numpy = "*"
 django-debug-toolbar = "*"
 pandas = "*"
 awsebcli = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
