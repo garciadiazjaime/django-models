@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import environ
+import pymysql
+
+pymysql.version_info = (1, 4, 6, "final", 0)
+pymysql.install_as_MySQLdb()
 
 env = environ.Env()
 environ.Env.read_env()
@@ -29,7 +33,7 @@ SECRET_KEY = "django-insecure-x%_ud@x9a-pqb^*f#%((d$gbvypq^poog(&w#ng0!sqik*)&1a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-models.eba-avyvv6wj.us-west-2.elasticbeanstalk.com"]
+ALLOWED_HOSTS = ["django-models.eba-avyvv6wj.us-west-2.elasticbeanstalk.com", "*"]
 
 
 # Application definition
@@ -102,16 +106,16 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": env("DB_NAME"),
-#         "USER": env("DB_USER"),
-#         "PASSWORD": env("DB_PASSWORD"),
-#         "HOST": env("DB_HOST"),
-#         "PORT": env("DB_PORT"),
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
+    }
+}
 
 
 # Password validation
