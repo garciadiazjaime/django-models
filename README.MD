@@ -83,3 +83,23 @@ SELECT g.id, g.title, g.description, g.price, g.store_url, g.image_url, c.name a
 ```bash
 pragma table_info('table_name');
 ```
+
+## Database
+
+### spin mysql container
+
+```bash
+docker run -e MYSQL_ROOT_PASSWORD=admin -d -p 3306:3306 mysql
+```
+
+### connect to DB
+
+```bash
+mysql -h 127.0.0.1 -uroot -p
+```
+
+## Deploy
+
+```bash
+fab2 deploy
+```

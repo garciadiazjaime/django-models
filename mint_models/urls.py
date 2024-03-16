@@ -14,10 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from event.urls import urlpatterns as event_routes
 from place.urls import urlpatterns as place_routes
+from mint_models import views
 
 urlpatterns = [
     path("api/events/", include(event_routes)),
@@ -25,4 +27,8 @@ urlpatterns = [
     path("gifts/", include("gift.urls")),
     path("admin/", admin.site.urls),
     path("__debug__/", include("debug_toolbar.urls")),
+    path(
+        ".well-known/acme-challenge/<str:code>",
+        views.challenge,
+    ),
 ]

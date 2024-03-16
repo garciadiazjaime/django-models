@@ -9,12 +9,14 @@ django-filter = "==23.3"
 djangorestframework = "==3.14.0"
 django-autoslug = "*"
 django-environ = "*"
-numpy = "*"
 django-debug-toolbar = "*"
-pandas = "*"
-awsebcli = "*"
 django-cors-headers = "*"
 pymysql = "*"
+gunicorn = "*"
+cryptography = "*"
+fabric2 = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 
