@@ -196,11 +196,9 @@ def export_artist():
         file.writerow(
             [
                 "id",
-                "profile",
+                "slug",
                 "genres_count",
                 "spotify",
-                "slug",
-                "image",
                 "twitter",
                 "facebook",
                 "youtube",
@@ -208,7 +206,6 @@ def export_artist():
                 "tiktok",
                 "soundcloud",
                 "appleMusic",
-                "spotify",
                 "band_camp",
                 "link_tree",
             ]
@@ -218,43 +215,18 @@ def export_artist():
             file.writerow(
                 [
                     row.id,
-                    row.profile,
-                    row.genres.count(),
-                    row.spotify,
                     row.slug,
-                    (
-                        row.metadata.facebook
-                        if hasattr(row.metadata, "facebook")
-                        else None
-                    ),
-                    row.metadata.youtube if hasattr(row.metadata, "youtube") else None,
-                    (
-                        row.metadata.instagram
-                        if hasattr(row.metadata, "instagram")
-                        else None
-                    ),
-                    row.metadata.tiktok if hasattr(row.metadata, "tiktok") else None,
-                    (
-                        row.metadata.soundcloud
-                        if hasattr(row.metadata, "soundcloud")
-                        else None
-                    ),
-                    (
-                        row.metadata.appleMusic
-                        if hasattr(row.metadata, "appleMusic")
-                        else None
-                    ),
-                    row.metadata.spotify if hasattr(row.metadata, "spotify") else None,
-                    (
-                        row.metadata.band_camp
-                        if hasattr(row.metadata, "band_camp")
-                        else None
-                    ),
-                    (
-                        row.metadata.link_tree
-                        if hasattr(row.metadata, "link_tree")
-                        else None
-                    ),
+                    row.genres.count(),
+                    1 if row.spotify else 0,
+                    1 if hasattr(row.metadata, "twitter") else 0,
+                    1 if hasattr(row.metadata, "facebook") else 0,
+                    1 if hasattr(row.metadata, "youtube") else 0,
+                    1 if hasattr(row.metadata, "instagram") else 0,
+                    1 if hasattr(row.metadata, "tiktok") else 0,
+                    1 if hasattr(row.metadata, "soundcloud") else 0,
+                    1 if hasattr(row.metadata, "appleMusic") else 0,
+                    1 if hasattr(row.metadata, "band_camp") else 0,
+                    1 if hasattr(row.metadata, "link_tree") else 0,
                 ]
             )
 
