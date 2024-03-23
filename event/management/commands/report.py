@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db.models import Count
@@ -9,16 +11,16 @@ import json
 
 
 def make_json(csv_file_path, json_file_path):
-    data = []
+    file_content = {"created": str(datetime.date.today()), "data": []}
 
     with open(csv_file_path, encoding="utf-8") as csv_file:
         csvReader = csv.DictReader(csv_file)
 
         for rows in csvReader:
-            data.append(rows)
+            file_content["data"].append(rows)
 
     with open(json_file_path, "w", encoding="utf-8") as json_file:
-        json_file.write(json.dumps(data, indent=4))
+        json_file.write(json.dumps(file_content, indent=4))
 
 
 def export_locations():
@@ -26,7 +28,8 @@ def export_locations():
 
     query = Location.objects.annotate(events=Count("event"))
 
-    with open("./data/location.csv", "w", newline="") as csv_file:
+    csv_file_name = "data/locations.csv"
+    with open(csv_file_name, "w", newline="") as csv_file:
         file = csv.writer(
             csv_file, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL
         )
@@ -117,8 +120,7 @@ def export_locations():
                 ]
             )
 
-    json_file_name = "data/location.json"
-    csv_file_name = "data/location.csv"
+    json_file_name = "data/locations.json"
     with open(csv_file_name, newline="") as csv_file:
         make_json(csv_file_name, json_file_name)
         default_storage.save(csv_file_name, csv_file)
@@ -133,7 +135,9 @@ def export_events():
     print("exporting events...")
 
     query = Event.objects.annotate(artists_count=Count("artists"))
-    with open("./data/events.csv", "w", newline="") as csv_file:
+
+    file_name = "data/events.csv"
+    with open(file_name, "w", newline="") as csv_file:
         file = csv.writer(
             csv_file, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL
         )
@@ -147,6 +151,7 @@ def export_events():
                 "slug",
                 "artists_count",
                 "venue",
+                "created",
             ]
         )
 
@@ -162,13 +167,13 @@ def export_events():
                         row.slug,
                         row.artists_count,
                         row.location.slug,
+                        row.created.strftime("%Y-%m-%d"),
                     ]
                 )
             else:
                 print("no location", row)
 
     json_file_name = "data/events.json"
-    file_name = "data/events.csv"
     with open(file_name, newline="") as csv_file:
         make_json(file_name, json_file_name)
         default_storage.save(file_name, csv_file)
@@ -183,7 +188,8 @@ def export_artist():
     print("exporting artists...")
 
     query = Artist.objects.annotate(events_count=Count("event"))
-    with open("./data/artists.csv", "w", newline="") as csv_file:
+    file_name = "data/artists.csv"
+    with open(file_name, "w", newline="") as csv_file:
         file = csv.writer(
             csv_file, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL
         )
@@ -253,7 +259,6 @@ def export_artist():
             )
 
     json_file_name = "data/artists.json"
-    file_name = "data/artists.csv"
     with open(file_name, newline="") as csv_file:
         make_json(file_name, json_file_name)
         default_storage.save(file_name, csv_file)
@@ -268,6 +273,10 @@ class Command(BaseCommand):
     def handle(self, **options):
         Path("./data").mkdir(parents=True, exist_ok=True)
 
+        print(f"exporting data {str(datetime.date.today())}")
+
         export_locations()
         export_events()
         export_artist()
+
+        print("export completed")

@@ -160,7 +160,10 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-CSRF_TRUSTED_ORIGINS = ["https://livemusicadmin.mintitmedia.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://livemusicadmin.mintitmedia.com",
+    "https://api.livemusic.mintitmedia.com",
+]
 
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
