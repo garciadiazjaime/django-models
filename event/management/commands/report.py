@@ -257,13 +257,13 @@ def export_artist():
                 ]
             )
 
-    # json_file_name = "data/artists.json"
+    json_file_name = "data/artists.json"
     with open(file_name, newline="") as csv_file:
-        # make_json(file_name, json_file_name)
+        make_json(file_name, json_file_name)
         default_storage.save(file_name, csv_file)
 
-    # with open(json_file_name, newline="") as json_file:
-    #     default_storage.save(json_file_name, json_file)
+    with open(json_file_name, newline="") as json_file:
+        default_storage.save(json_file_name, json_file)
 
     print("artists exported")
 
@@ -274,8 +274,8 @@ class Command(BaseCommand):
 
         print(f"exporting data {str(datetime.date.today())}")
 
-        # export_locations()
-        # export_events()
+        export_locations()
+        export_events()
         export_artist()
 
         print("export completed")
