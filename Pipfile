@@ -17,6 +17,7 @@ cryptography = "*"
 fabric2 = "*"
 django-storages = "*"
 boto3 = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -184,10 +184,33 @@ def export_events():
     print("events exported")
 
 
+def get_group(followers):
+    if not followers or followers < 10_000:
+        return 1
+
+    if followers < 1_000_000:
+        return 2
+
+    return 3
+
+
+def get_popularity(popularity):
+    if not popularity or popularity < 40:
+        return 1
+
+    if popularity < 80:
+        return 2
+
+    return 3
+
+
 def export_artist():
     print("exporting artists...")
 
-    query = Artist.objects.annotate(events_count=Count("event"))
+    query = Artist.objects.filter(musico__isnull=False).annotate(
+        events_count=Count("event")
+    )
+
     file_name = "data/artists.csv"
     with open(file_name, "w", newline="") as csv_file:
         file = csv.writer(
@@ -195,10 +218,9 @@ def export_artist():
         )
         file.writerow(
             [
-                "id",
-                "slug",
-                "genres_count",
+                # "genres_count",
                 "spotify",
+                "website",
                 "twitter",
                 "facebook",
                 "youtube",
@@ -206,18 +228,21 @@ def export_artist():
                 "tiktok",
                 "soundcloud",
                 "appleMusic",
-                "band_camp",
-                "link_tree",
+                # "band_camp",
+                # "link_tree",
+                # "group",
+                "popularity",
             ]
         )
 
         for row in query:
+            group = get_group(row.musico_set.first().followers)
+            popularity = get_popularity(row.musico_set.first().popularity)
             file.writerow(
                 [
-                    row.id,
-                    row.slug,
-                    row.genres.count(),
+                    # row.genres.count(),
                     1 if row.spotify else 0,
+                    1 if hasattr(row.metadata, "website") else 0,
                     1 if hasattr(row.metadata, "twitter") else 0,
                     1 if hasattr(row.metadata, "facebook") else 0,
                     1 if hasattr(row.metadata, "youtube") else 0,
@@ -225,18 +250,20 @@ def export_artist():
                     1 if hasattr(row.metadata, "tiktok") else 0,
                     1 if hasattr(row.metadata, "soundcloud") else 0,
                     1 if hasattr(row.metadata, "appleMusic") else 0,
-                    1 if hasattr(row.metadata, "band_camp") else 0,
-                    1 if hasattr(row.metadata, "link_tree") else 0,
+                    # 1 if hasattr(row.metadata, "band_camp") else 0,
+                    # 1 if hasattr(row.metadata, "link_tree") else 0,
+                    # group,
+                    popularity,
                 ]
             )
 
-    json_file_name = "data/artists.json"
+    # json_file_name = "data/artists.json"
     with open(file_name, newline="") as csv_file:
-        make_json(file_name, json_file_name)
+        # make_json(file_name, json_file_name)
         default_storage.save(file_name, csv_file)
 
-    with open(json_file_name, newline="") as json_file:
-        default_storage.save(json_file_name, json_file)
+    # with open(json_file_name, newline="") as json_file:
+    #     default_storage.save(json_file_name, json_file)
 
     print("artists exported")
 
@@ -247,8 +274,8 @@ class Command(BaseCommand):
 
         print(f"exporting data {str(datetime.date.today())}")
 
-        export_locations()
-        export_events()
+        # export_locations()
+        # export_events()
         export_artist()
 
         print("export completed")

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import FloatField
 
-from .models import Artist, Event, Location, Metadata, Spotify, Genre, Slug
+from .models import Artist, Event, Location, Metadata, Spotify, Genre, Slug, MusicO
 from .support import get_rank, get_location_rank
 
 
@@ -83,14 +83,101 @@ class LocationSerializer(serializers.ModelSerializer):
         ]
 
 
+class MusicOSerializer(serializers.ModelSerializer):
+    genres = GenreSerializer(many=True)
+
+    class Meta:
+        model = MusicO
+        fields = [
+            "pk",
+            "followers",
+            "popularity",
+            "image",
+            "genres",
+            "artist",
+        ]
+
+
 class ArtistSerializer(serializers.ModelSerializer):
     metadata = MetadataSerializer(required=False, allow_null=True)
     spotify = SpotifySerializer(required=False, allow_null=True)
     genres = GenreSerializer(many=True, required=False, allow_null=True)
+    musicO = MusicOSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Artist
-        fields = ["pk", "name", "profile", "metadata", "spotify", "genres", "slug"]
+        fields = [
+            "pk",
+            "name",
+            "profile",
+            "metadata",
+            "spotify",
+            "genres",
+            "musicO",
+            "slug",
+        ]
+
+    def create(self, validated_data):
+        pre_music_o = (
+            validated_data.pop("musicO") if "musicO" in validated_data else None
+        )
+        pre_artist_meta = (
+            validated_data.pop("metadata") if "metadata" in validated_data else None
+        )
+        pre_artist_spotify = (
+            validated_data.pop("spotify") if "spotify" in validated_data else None
+        )
+        pre_artist_genres = (
+            validated_data.pop("genres") if "genres" in validated_data else None
+        )
+        pre_artist_slug = validated_data.pop("slug")
+
+        instance, _ = Artist.objects.update_or_create(
+            slug=pre_artist_slug, defaults=validated_data
+        )
+
+        if pre_artist_meta:
+            artist_meta, _ = Metadata.objects.update_or_create(
+                type="ARTIST", slug=instance.slug, defaults=pre_artist_meta
+            )
+
+            instance.metadata = artist_meta
+            instance.save()
+
+        if pre_artist_spotify:
+            pre_spotify_genres = (
+                pre_artist_spotify.pop("genres")
+                if "genres" in pre_artist_spotify
+                else None
+            )
+            artist_spotify, _ = Spotify.objects.update_or_create(
+                url=pre_artist_spotify["url"], defaults=pre_artist_spotify
+            )
+            instance.spotify = artist_spotify
+            instance.save()
+
+            for pre_genre in pre_spotify_genres:
+                genre, _ = Genre.objects.update_or_create(**pre_genre)
+                artist_spotify.genres.add(genre)
+
+        if pre_artist_genres:
+            for pre_genre in pre_artist_genres:
+                genre, _ = Genre.objects.update_or_create(**pre_genre)
+                instance.genres.add(genre)
+
+        if pre_music_o:
+            pre_music_o_genres = (
+                pre_music_o.pop("genres") if "genres" in pre_music_o else None
+            )
+            music_o, _ = MusicO.objects.update_or_create(
+                artist=instance, defaults=pre_music_o
+            )
+
+            for pre_genre in pre_music_o_genres:
+                genre, _ = Genre.objects.update_or_create(**pre_genre)
+                music_o.genres.add(genre)
+
+        return instance
 
 
 class BlankFloatField(FloatField):

@@ -1,7 +1,17 @@
 from django.contrib import admin
 from django.db.models import Count
 
-from .models import Location, Event, Artist, Metadata, Spotify, Genre, Slug
+from .models import (
+    Location,
+    Event,
+    Artist,
+    Metadata,
+    Spotify,
+    Genre,
+    Slug,
+    MusicO,
+    Twitter,
+)
 
 
 class SlugAdmin(admin.ModelAdmin):
@@ -154,6 +164,42 @@ class EventAdmin(admin.ModelAdmin):
         return obj.location.place_id
 
 
+class MusicOAdmin(admin.ModelAdmin):
+    list_display = [
+        "artist",
+        "events",
+        "followers",
+        "popularity",
+        "genres_list",
+        "image",
+        "created",
+        "updated",
+    ]
+    search_fields = ["artist__name"]
+
+    def events(self, obj):
+        return obj.artist.event_set.count()
+
+    def genres_list(self, obj):
+        return ",".join(obj.genres.values_list("name", flat=True))
+
+
+class TwitterAdmin(admin.ModelAdmin):
+    list_display = [
+        "handler",
+        "url",
+        "followers_count",
+        "friends_count",
+        "image",
+        "artist",
+        "created",
+        "updated",
+    ]
+
+    def url(sef, obj):
+        return obj.artist.metadata.twitter
+
+
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Spotify, SpotifyAdmin)
 admin.site.register(Metadata, MetadataAdmin)
@@ -161,5 +207,9 @@ admin.site.register(Location, LocationAdmin)
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Slug, SlugAdmin)
+
+admin.site.register(MusicO, MusicOAdmin)
+admin.site.register(Twitter, TwitterAdmin)
+
 
 from django.contrib import admin

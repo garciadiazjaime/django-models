@@ -82,6 +82,18 @@ class Artist(models.Model):
         return self.name
 
 
+class MusicO(models.Model):
+    followers = models.IntegerField(blank=True, null=True)
+    popularity = models.IntegerField(blank=True, null=True)
+    image = models.URLField(default="", blank=True, null=True, max_length=420)
+    genres = models.ManyToManyField(Genre, blank=True)
+
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, blank=True, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
 class Location(models.Model):
     name = models.CharField(max_length=240)
     address = models.TextField()
@@ -134,3 +146,18 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Twitter(models.Model):
+    handler = models.CharField(max_length=240)
+    followers_count = models.IntegerField(default=0)
+    friends_count = models.IntegerField(default=0)
+    image = models.URLField(default="", blank=True, max_length=240)
+
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.handler
