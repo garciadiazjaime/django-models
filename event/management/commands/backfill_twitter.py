@@ -22,8 +22,8 @@ def get_twitter(handler):
 
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        print(f"error:twitter response {response.status_code}")
-        print(response.text)
+        print(f"response: {response.status_code}")
+        print(f"error: {response.text}")
         return -1
 
     data = response.json()
@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
         print(f"total accounts: {query.count()}")
 
-        list1 = [1, 2, 3, 5, 8, 13, 21]
+        list1 = [3, 5, 8, 13, 21, 34, 55]
 
         for artist in query:
             twitter_url = artist.metadata.twitter
@@ -77,11 +77,11 @@ class Command(BaseCommand):
                 artist.metadata.save()
 
             if twitter == -1:
-                print(f"skipping: {handler}")
-                continue
+                print(f"early exit")
+                break
 
             Twitter.objects.update_or_create(artist=artist, defaults=twitter)
-
+            print(f"updated:{handler}")
             wait = random.choice(list1)
             print(f"sleeping: for {wait} secs")
             time.sleep(wait)

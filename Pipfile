@@ -18,6 +18,8 @@ fabric2 = "*"
 django-storages = "*"
 boto3 = "*"
 requests = "*"
+django-dbbackup = "*"
+tensorflow = "*"
 
 [dev-packages]
 

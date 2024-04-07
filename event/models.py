@@ -65,6 +65,7 @@ class Metadata(models.Model):
 class Artist(models.Model):
     name = models.CharField(max_length=240)
     profile = models.URLField(default="", null=True, blank=True)
+    popularity = models.IntegerField(blank=True, null=True)
     genres = models.ManyToManyField(Genre, blank=True)
     spotify = models.ForeignKey(
         Spotify, on_delete=models.CASCADE, null=True, blank=True

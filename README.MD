@@ -103,3 +103,19 @@ mysql -h 127.0.0.1 -uroot -p
 ```bash
 fab2 deploy
 ```
+
+## DB
+
+### Backup DB
+
+[django-dbbackup](https://django-dbbackup.readthedocs.io/en/master/index.html)
+
+```bash
+./manage.py dbbackup
+```
+
+### Restore DB
+
+```bash
+./manage.py dbrestore
+```

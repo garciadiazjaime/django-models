@@ -268,6 +268,66 @@ def export_artist():
     print("artists exported")
 
 
+def export_artist_twitter():
+    print("exporting artists with twitter...")
+
+    query = Artist.objects.filter(
+        musico__isnull=False, twitter__followers_count__gt=0
+    ).annotate(events_count=Count("event"))
+    print(f"artists found: {query.count()}")
+
+    file_name = "data/artists.csv"
+    with open(file_name, "w", newline="") as csv_file:
+        file = csv.writer(
+            csv_file, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL
+        )
+        file.writerow(
+            [
+                "spotify",
+                "spotify_followers",
+                "website",
+                "twitter",
+                "twitter_followers",
+                "facebook",
+                "youtube",
+                "instagram",
+                "tiktok",
+                "soundcloud",
+                "appleMusic",
+                "popularity",
+            ]
+        )
+
+        for artist in query:
+            # popularity = get_popularity(artist.musico_set.first().popularity)
+            file.writerow(
+                [
+                    1 if artist.spotify else 0,
+                    artist.spotify.followers if artist.spotify else 0,
+                    1 if hasattr(artist.metadata, "website") else 0,
+                    1 if hasattr(artist.metadata, "twitter") else 0,
+                    artist.twitter_set.first().followers_count,
+                    1 if hasattr(artist.metadata, "facebook") else 0,
+                    1 if hasattr(artist.metadata, "youtube") else 0,
+                    1 if hasattr(artist.metadata, "instagram") else 0,
+                    1 if hasattr(artist.metadata, "tiktok") else 0,
+                    1 if hasattr(artist.metadata, "soundcloud") else 0,
+                    1 if hasattr(artist.metadata, "appleMusic") else 0,
+                    artist.musico_set.first().popularity,
+                ]
+            )
+
+    json_file_name = "data/artists.json"
+    with open(file_name, newline="") as csv_file:
+        make_json(file_name, json_file_name)
+        default_storage.save(file_name, csv_file)
+
+    with open(json_file_name, newline="") as json_file:
+        default_storage.save(json_file_name, json_file)
+
+    print("artists exported")
+
+
 class Command(BaseCommand):
     def handle(self, **options):
         Path("./data").mkdir(parents=True, exist_ok=True)
@@ -277,5 +337,6 @@ class Command(BaseCommand):
         export_locations()
         export_events()
         export_artist()
+        export_artist_twitter()
 
         print("export completed")

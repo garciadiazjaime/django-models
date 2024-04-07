@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count
+from django.db.models import Count, Sum
 
 from .models import (
     Location,
@@ -121,6 +121,11 @@ class ArtistAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "slug",
+        "popularity",
+        "real_popularity",
+        "followers",
+        "twitter",
+        "musico",
         "profile",
         "events",
         "created",
@@ -128,8 +133,37 @@ class ArtistAdmin(admin.ModelAdmin):
     ]
     search_fields = ["name"]
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(
+            followers=Sum("twitter__followers_count"),
+            real_popularity=Sum("musico__popularity"),
+        )
+        return queryset
+
     def events(self, obj):
         return obj.event_set.count()
+
+    def real_popularity(self, obj):
+        return obj.musico_set.first().popularity if obj.musico_set.count() > 0 else None
+
+    def followers(self, obj):
+        return (
+            obj.twitter_set.first().followers_count
+            if obj.twitter_set.count() > 0
+            else None
+        )
+
+    def twitter(self, obj):
+        return obj.twitter_set.first().handler if obj.twitter_set.count() > 0 else ""
+
+    def musico(self, obj):
+        return obj.musico_set.count() > 0
+
+    followers.admin_order_field = "followers"
+    real_popularity.admin_order_field = "real_popularity"
+    musico.admin_order_field = "musico"
+    musico.boolean = True
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -195,6 +229,7 @@ class TwitterAdmin(admin.ModelAdmin):
         "created",
         "updated",
     ]
+    search_fields = ["artist__name"]
 
     def url(sef, obj):
         return obj.artist.metadata.twitter
