@@ -9,7 +9,7 @@ from event.models import Artist
 class Command(BaseCommand):
     def handle(self, **options):
 
-        reloaded = tf.keras.models.load_model("./data/one_variable_model.keras")
+        reloaded = tf.keras.models.load_model("./data/artist_popularity_model.keras")
 
         artists = Artist.objects.filter(
             twitter__isnull=False,
