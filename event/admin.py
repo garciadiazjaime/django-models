@@ -11,6 +11,7 @@ from .models import (
     Slug,
     MusicO,
     Twitter,
+    Instagram
 )
 
 
@@ -234,6 +235,22 @@ class TwitterAdmin(admin.ModelAdmin):
     def url(sef, obj):
         return obj.artist.metadata.twitter
 
+class InstagramAdmin(admin.ModelAdmin):
+    list_display = [
+        "handler",
+        "url",
+        "followers_count",
+        "following_count",
+        "posts_count",
+        "artist",
+        "created",
+        "updated",
+    ]
+    search_fields = ["artist__name"]
+
+    def url(sef, obj):
+        return obj.artist.metadata.instagram
+
 
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Spotify, SpotifyAdmin)
@@ -245,6 +262,7 @@ admin.site.register(Slug, SlugAdmin)
 
 admin.site.register(MusicO, MusicOAdmin)
 admin.site.register(Twitter, TwitterAdmin)
+admin.site.register(Instagram, InstagramAdmin)
 
 
 from django.contrib import admin
