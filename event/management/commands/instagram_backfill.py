@@ -59,7 +59,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         query = Artist.objects.filter(
             metadata__instagram__isnull=False, instagram__isnull=True
-        ).exclude(metadata__instagram__exact="")[:2]
+        ).exclude(metadata__instagram__exact="")
 
         print(f"total accounts: {query.count()}")
 
