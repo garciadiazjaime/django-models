@@ -114,6 +114,8 @@ fab2 deploy
 ./manage.py dbbackup
 ```
 
+The backup file will be saved in the `./data` directory, defined by the `DBBACKUP_STORAGE_OPTIONS ` var in the [settings.py](https://github.com/garciadiazjaime/django-models/blob/main/mint_models/settings.py) file.
+
 ### Restore DB
 
 ```bash
