@@ -3,6 +3,7 @@ import time
 import environ
 import random
 import re
+import locale
 from scrapy.selector import Selector
 
 from django.core.management.base import BaseCommand
@@ -10,18 +11,19 @@ from django.core.management.base import BaseCommand
 from event.models import Artist, Instagram
 
 env = environ.Env()
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 def parse_stat(formatted_stat):
-    if (not len(formatted_stat)):
+    if not len(formatted_stat):
         return None
 
-    if (formatted_stat[-1] == "M"):
-        return int(formatted_stat[:-1].replace(',','')) * 1_000_000
+    if formatted_stat[-1] == "M":
+        return locale.atoi(formatted_stat[:-1]) * 1_000_000
 
-    if (formatted_stat[-1] == "K"):
-        return int(formatted_stat[:-1].replace(',','')) * 1_000
+    if formatted_stat[-1] == "K":
+        return locale.atoi(formatted_stat[:-1]) * 1_000
 
-    return int(formatted_stat.replace(',',''))
+    return locale.atoi(formatted_stat)
     
 
 def get_instagram(url):
@@ -34,7 +36,7 @@ def get_instagram(url):
         return -1
 
     meta_description_content = Selector(text=response.text).xpath("//meta[@name='description']/@content")[0].extract()
-    stats_meta, handle_meta = meta_description_content.split("-")
+    stats_meta, handler_meta = meta_description_content.split("-")
 
     stats_parts = stats_meta.split()
     
@@ -42,14 +44,14 @@ def get_instagram(url):
     following=parse_stat(stats_parts[2])
     posts=parse_stat(stats_parts[4])
 
-    handle_matches = re.findall(r"\((.*?)\)", handle_meta)
-    handle = handle_matches[0] if len(handle_matches) else ""
+    handler_matches = re.findall(r"\((.*?)\)", handler_meta)
+    handler = handler_matches[0] if len(handler_matches) else ""
 
     instagram = {
         "followers_count": followers,
         "following_count": following,
         "posts_count": posts,
-        "handler": handle
+        "handler": handler
     }
 
     return instagram
