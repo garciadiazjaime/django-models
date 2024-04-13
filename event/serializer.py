@@ -110,6 +110,7 @@ class ArtistSerializer(serializers.ModelSerializer):
             "pk",
             "name",
             "profile",
+            "popularity",
             "metadata",
             "spotify",
             "genres",

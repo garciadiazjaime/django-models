@@ -11,7 +11,7 @@ from .models import (
     Slug,
     MusicO,
     Twitter,
-    Instagram
+    Instagram,
 )
 
 
@@ -67,7 +67,7 @@ class MetadataAdmin(admin.ModelAdmin):
         "created",
         "updated",
     ]
-    search_fields = ["slug"]
+    search_fields = ["slug", "instagram"]
 
     def social(self, obj):
         if obj.twitter or obj.facebook or obj.instagram or obj.tiktok:
@@ -234,6 +234,7 @@ class TwitterAdmin(admin.ModelAdmin):
 
     def url(sef, obj):
         return obj.artist.metadata.twitter
+
 
 class InstagramAdmin(admin.ModelAdmin):
     list_display = [

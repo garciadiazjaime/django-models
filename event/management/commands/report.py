@@ -336,7 +336,7 @@ class Command(BaseCommand):
 
         export_locations()
         export_events()
-        export_artist()
+        # export_artist()
         export_artist_twitter()
 
         print("export completed")

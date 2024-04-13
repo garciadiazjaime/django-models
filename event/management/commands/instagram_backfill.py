@@ -11,7 +11,8 @@ from django.core.management.base import BaseCommand
 from event.models import Artist, Instagram
 
 env = environ.Env()
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+
 
 def parse_stat(formatted_stat):
     if not len(formatted_stat):
@@ -24,25 +25,32 @@ def parse_stat(formatted_stat):
         return locale.atoi(formatted_stat[:-1]) * 1_000
 
     return locale.atoi(formatted_stat)
-    
+
 
 def get_instagram(url):
-    print(f"url: {url}")
     response = requests.get(url)
+    print(f"url: {url} [{response.status_code}]")
 
     if response.status_code != 200:
         print(f"response: {response.status_code}")
         print(f"error: {response.text}")
         return -1
 
-    meta_description_content = Selector(text=response.text).xpath("//meta[@name='description']/@content")[0].extract()
+    description = Selector(text=response.text).xpath(
+        "//meta[@name='description']/@content"
+    )
+
+    if not len(description):
+        return -1
+
+    meta_description_content = description[0].extract()
     stats_meta, handler_meta = meta_description_content.split("-")
 
     stats_parts = stats_meta.split()
-    
-    followers=parse_stat(stats_parts[0])  
-    following=parse_stat(stats_parts[2])
-    posts=parse_stat(stats_parts[4])
+
+    followers = parse_stat(stats_parts[0])
+    following = parse_stat(stats_parts[2])
+    posts = parse_stat(stats_parts[4])
 
     handler_matches = re.findall(r"\((.*?)\)", handler_meta)
     handler = handler_matches[0] if len(handler_matches) else ""
@@ -51,7 +59,7 @@ def get_instagram(url):
         "followers_count": followers,
         "following_count": following,
         "posts_count": posts,
-        "handler": handler
+        "handler": handler,
     }
 
     return instagram
@@ -66,11 +74,12 @@ class Command(BaseCommand):
         print(f"total accounts: {query.count()}")
 
         wait_times = [8, 13, 21, 34, 55]
+        index = 1
 
         for artist in query:
             instagram_url = artist.metadata.instagram
             instagram = get_instagram(instagram_url)
-            
+
             if not instagram:
                 print(f"removing metadata.instagram: {artist}[${artist.id}]")
                 artist.metadata.instagram = ""
@@ -80,9 +89,13 @@ class Command(BaseCommand):
                 print(f"early exit")
                 break
 
-            instance,_ = Instagram.objects.update_or_create(artist=artist, defaults=instagram)
-            
-            print(f"updated:{instance}")
+            instance, _ = Instagram.objects.update_or_create(
+                artist=artist, defaults=instagram
+            )
+
+            print(f"updated:{instance} [{index}]")
+
             wait = random.choice(wait_times)
             print(f"sleeping: for {wait} secs")
             time.sleep(wait)
+            index += 1
