@@ -247,7 +247,7 @@ class InstagramAdmin(admin.ModelAdmin):
         "created",
         "updated",
     ]
-    search_fields = ["artist__name"]
+    search_fields = ["artist__name", "handler"]
 
     def url(sef, obj):
         return obj.artist.metadata.instagram

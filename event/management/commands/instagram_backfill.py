@@ -16,7 +16,7 @@ locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 def parse_stat(formatted_stat):
     if not len(formatted_stat):
-        return None
+        return
 
     if formatted_stat[-1] == "M":
         return locale.atoi(formatted_stat[:-1]) * 1_000_000
@@ -44,16 +44,15 @@ def get_instagram(url):
         return -1
 
     meta_description_content = description[0].extract()
-    stats_meta, handler_meta = meta_description_content.split("-")
+    stats_meta = meta_description_content.split("-")[0]
 
-    stats_parts = stats_meta.split()
+    stats_parts = stats_meta.split(" ")
 
     followers = parse_stat(stats_parts[0])
     following = parse_stat(stats_parts[2])
     posts = parse_stat(stats_parts[4])
 
-    handler_matches = re.findall(r"\((.*?)\)", handler_meta)
-    handler = handler_matches[0] if len(handler_matches) else ""
+    handler = url.split("/")[-1]
 
     instagram = {
         "followers_count": followers,
