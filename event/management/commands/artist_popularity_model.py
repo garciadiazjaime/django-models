@@ -151,3 +151,4 @@ class Command(BaseCommand):
             plot_xy(x, y, train_features["twitter_followers"], train_labels)
 
         model.save("./data/artist_popularity_model.keras")
+        model.export("./data/saved_model")

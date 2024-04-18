@@ -132,7 +132,7 @@ class ArtistAdmin(admin.ModelAdmin):
         "created",
         "updated",
     ]
-    search_fields = ["name"]
+    search_fields = ["name", "metadata__instagram"]
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -238,6 +238,7 @@ class TwitterAdmin(admin.ModelAdmin):
 
 class InstagramAdmin(admin.ModelAdmin):
     list_display = [
+        "artist",
         "handler",
         "url",
         "followers_count",

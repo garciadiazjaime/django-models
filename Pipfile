@@ -25,6 +25,7 @@ pandas = "*"
 seaborn = "*"
 scikit-learn = "*"
 scrapy = "*"
+tensorflowjs = "*"
 
 [dev-packages]
 

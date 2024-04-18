@@ -29,7 +29,7 @@ def parse_stat(formatted_stat):
 
 def get_instagram(url):
     response = requests.get(url)
-    print(f"url: {url} [{response.status_code}]")
+    print(f"[{response.status_code}]: {url}")
 
     if response.status_code != 200:
         print(f"response: {response.status_code}")
@@ -41,6 +41,7 @@ def get_instagram(url):
     )
 
     if not len(description):
+        print("error:user does not exist")
         return -1
 
     meta_description_content = description[0].extract()
@@ -52,13 +53,13 @@ def get_instagram(url):
     following = parse_stat(stats_parts[2])
     posts = parse_stat(stats_parts[4])
 
-    handler = url.split("/")[-1]
+    handle = url.split("/")[-2] if url[-1] == "/" else url.split("/")[-1]
 
     instagram = {
         "followers_count": followers,
         "following_count": following,
         "posts_count": posts,
-        "handler": handler,
+        "handler": handle,
     }
 
     return instagram
@@ -70,29 +71,33 @@ class Command(BaseCommand):
             metadata__instagram__isnull=False, instagram__isnull=True
         ).exclude(metadata__instagram__exact="")
 
-        print(f"total accounts: {query.count()}")
+        total = query.count()
+        print(f"total accounts: {total}")
 
-        wait_times = [8, 13, 21, 34, 55]
+        wait_times = [5, 8, 13, 21, 34, 55]
         index = 1
+        accounts_with_errors = []
 
         for artist in query:
             instagram_url = artist.metadata.instagram
             instagram = get_instagram(instagram_url)
 
-            if not instagram:
-                print(f"removing metadata.instagram: {artist}[${artist.id}]")
-                artist.metadata.instagram = ""
-                artist.metadata.save()
-
             if instagram == -1:
-                print(f"early exit")
-                break
+                accounts_with_errors.append(instagram_url)
+
+                if len(accounts_with_errors) > 6:
+                    print(accounts_with_errors)
+                    print(f"early exit")
+                    break
+
+                print(f"skipping account: {instagram_url}")
+                continue
 
             instance, _ = Instagram.objects.update_or_create(
                 artist=artist, defaults=instagram
             )
 
-            print(f"updated:{instance} [{index}]")
+            print(f"[{index}/{total}]: updated:{instance} ")
 
             wait = random.choice(wait_times)
             print(f"sleeping: for {wait} secs")
