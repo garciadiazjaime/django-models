@@ -252,9 +252,14 @@ class EventSerializer(serializers.ModelSerializer):
             location.save()
 
         name = validated_data.pop("name")
-        instance, _ = Event.objects.update_or_create(
-            name=name, location=location, defaults=validated_data
-        )
+        if Event.objects.filter(url=validated_data["url"]).count():
+            instance, _ = Event.objects.update_or_create(
+                url=validated_data["url"], defaults=validated_data
+            )
+        else:
+            instance, _ = Event.objects.update_or_create(
+                name=name, location=location, defaults=validated_data
+            )
 
         for pre_artist in pre_artists:
             pre_artist_meta = (

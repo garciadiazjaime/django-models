@@ -84,14 +84,24 @@ class Command(BaseCommand):
             instagram = get_instagram(instagram_url)
 
             if instagram == -1:
-                accounts_with_errors.append(instagram_url)
+                accounts_with_errors.append(
+                    {
+                        "instagram_url": instagram_url,
+                        "artist": f"https://api.livemusic.mintitmedia.com/admin/event/artist/{artist.id}/change/",
+                        "metadata": f"https://api.livemusic.mintitmedia.com/admin/event/metadata/{artist.metadata.id}/change/",
+                    }
+                )
 
-                if len(accounts_with_errors) > 6:
+                print(f"invalid account: {instagram_url}")
+                print(f"removing metadata.instagram: {artist}[${artist.id}]")
+                artist.metadata.instagram = ""
+                artist.metadata.save()
+
+                if len(accounts_with_errors) > 20:
                     print(json.dumps(accounts_with_errors, indent=2))
                     print(f"early exit")
                     break
 
-                print(f"skipping account: {instagram_url}")
                 continue
 
             instance, _ = Instagram.objects.update_or_create(

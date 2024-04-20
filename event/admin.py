@@ -175,11 +175,11 @@ class EventAdmin(admin.ModelAdmin):
         "venue",
         "location",
         "location_pk",
-        "location_id",
         "artist",
         "artist_count",
         "provider",
         "start_date",
+        "created",
         "updated",
         "pk",
     ]
