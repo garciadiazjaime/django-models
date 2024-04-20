@@ -2,9 +2,10 @@ import requests
 import time
 import environ
 import random
-import re
 import locale
 from scrapy.selector import Selector
+import json
+
 
 from django.core.management.base import BaseCommand
 
@@ -86,7 +87,7 @@ class Command(BaseCommand):
                 accounts_with_errors.append(instagram_url)
 
                 if len(accounts_with_errors) > 6:
-                    print(accounts_with_errors)
+                    print(json.dumps(accounts_with_errors, indent=2))
                     print(f"early exit")
                     break
 
