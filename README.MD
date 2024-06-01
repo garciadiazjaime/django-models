@@ -121,3 +121,9 @@ The backup file will be saved in the `./data` directory, defined by the `DBBACKU
 ```bash
 ./manage.py dbrestore
 ```
+
+### spin api container
+
+```bash
+docker run -e DB_NAME=livemusic -e DB_USER=root -e DB_HOST=host.docker.internal -d -p 8000:8000 garciadiazjaime/django-models
+```

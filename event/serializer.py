@@ -1,3 +1,5 @@
+from datetime import datetime, time
+import pytz
 from rest_framework import serializers
 from rest_framework.serializers import FloatField
 
@@ -252,9 +254,18 @@ class EventSerializer(serializers.ModelSerializer):
             location.save()
 
         name = validated_data.pop("name")
-        if Event.objects.filter(url=validated_data["url"]).count():
+        start_date_range = (
+            datetime.combine(validated_data["start_date"], time.min, tzinfo=pytz.UTC),
+            datetime.combine(validated_data["start_date"], time.max, tzinfo=pytz.UTC),
+        )
+        if Event.objects.filter(
+            url=validated_data["url"],
+            start_date__range=start_date_range,
+        ).count():
             instance, _ = Event.objects.update_or_create(
-                url=validated_data["url"], defaults=validated_data
+                url=validated_data["url"],
+                start_date__range=start_date_range,
+                defaults=validated_data,
             )
         else:
             instance, _ = Event.objects.update_or_create(

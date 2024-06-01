@@ -10,4 +10,4 @@ ADD . /code
 
 EXPOSE 8000
 
-CMD [ "gunicorn", "--chdir", "mint_models", "wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD [ "gunicorn", "--chdir", "mint_models","--access-logfile", "-", "wsgi:application", "--bind", "0.0.0.0:8000"]
