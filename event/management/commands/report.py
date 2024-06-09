@@ -1,13 +1,16 @@
 import datetime
+from pathlib import Path
+import csv
+import json
+import boto3
 
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db.models import Count
-from event.models import Location, Event, Artist
-from pathlib import Path
 
-import csv
-import json
+from event.models import Location, Event, Artist
+
+s3 = boto3.resource("s3")
 
 
 def make_json(csv_file_path, json_file_path):
@@ -121,12 +124,25 @@ def export_locations():
             )
 
     json_file_name = "data/locations.json"
-    with open(csv_file_name, newline="") as csv_file:
-        make_json(csv_file_name, json_file_name)
-        default_storage.save(csv_file_name, csv_file)
+    make_json(csv_file_name, json_file_name)
 
-    with open(json_file_name, newline="") as json_file:
-        default_storage.save(json_file_name, json_file)
+    s3.meta.client.upload_file(
+        Filename=csv_file_name,
+        Bucket="cmc.data",
+        Key=csv_file_name,
+        ExtraArgs={
+            "ContentType": "text/csv",
+        },
+    )
+
+    s3.meta.client.upload_file(
+        Filename=json_file_name,
+        Bucket="cmc.data",
+        Key=json_file_name,
+        ExtraArgs={
+            "ContentType": "application/json",
+        },
+    )
 
     print("locations exported")
 
@@ -174,12 +190,25 @@ def export_events():
                 print("no location", row)
 
     json_file_name = "data/events.json"
-    with open(file_name, newline="") as csv_file:
-        make_json(file_name, json_file_name)
-        default_storage.save(file_name, csv_file)
+    make_json(file_name, json_file_name)
 
-    with open(json_file_name, newline="") as json_file:
-        default_storage.save(json_file_name, json_file)
+    s3.meta.client.upload_file(
+        Filename=file_name,
+        Bucket="cmc.data",
+        Key=file_name,
+        ExtraArgs={
+            "ContentType": "text/csv",
+        },
+    )
+
+    s3.meta.client.upload_file(
+        Filename=json_file_name,
+        Bucket="cmc.data",
+        Key=json_file_name,
+        ExtraArgs={
+            "ContentType": "application/json",
+        },
+    )
 
     print("events exported")
 
@@ -318,12 +347,25 @@ def export_artist_twitter():
             )
 
     json_file_name = "data/artists.json"
-    with open(file_name, newline="") as csv_file:
-        make_json(file_name, json_file_name)
-        default_storage.save(file_name, csv_file)
 
-    with open(json_file_name, newline="") as json_file:
-        default_storage.save(json_file_name, json_file)
+    make_json(file_name, json_file_name)
+    s3.meta.client.upload_file(
+        Filename=file_name,
+        Bucket="cmc.data",
+        Key=file_name,
+        ExtraArgs={
+            "ContentType": "text/csv",
+        },
+    )
+
+    s3.meta.client.upload_file(
+        Filename=json_file_name,
+        Bucket="cmc.data",
+        Key=json_file_name,
+        ExtraArgs={
+            "ContentType": "application/json",
+        },
+    )
 
     print("artists exported")
 
@@ -336,7 +378,7 @@ class Command(BaseCommand):
 
         export_locations()
         export_events()
-        # export_artist()
+        # # export_artist()
         export_artist_twitter()
 
         print("export completed")
