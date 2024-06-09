@@ -131,5 +131,13 @@ docker run -e DB_NAME=livemusic -e DB_USER=root -e DB_HOST=host.docker.internal 
 ### Events Updated Last Month
 
 ```
-select count(*) as count, provider from event_event where updated > (CURDATE() - INTERVAL 1 MONTH)  group by provider order by provider desc;
+SELECT
+  DATE_FORMAT(updated, '%Y-%m-%d') as date,
+  count(*) AS count,
+  provider
+FROM event_event
+WHERE updated > (CURDATE() - INTERVAL 1 MONTH)
+GROUP BY provider, date
+ORDER BY date DESC, count DESC
+;
 ```
