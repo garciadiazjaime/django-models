@@ -264,7 +264,6 @@ class EventSerializer(serializers.ModelSerializer):
         ).count():
             instance, _ = Event.objects.update_or_create(
                 url=validated_data["url"],
-                start_date__range=start_date_range,
                 defaults=validated_data,
             )
         else:

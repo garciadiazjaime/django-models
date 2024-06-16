@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def get_location_rank(metadata):
     rank = 0
     if not metadata:
@@ -42,3 +45,8 @@ def get_rank(event):
                 rank += 1000
 
     return rank
+
+
+def loggerInfo(msg):
+    date = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{date}] {msg}")

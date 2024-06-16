@@ -6,17 +6,21 @@ import json
 
 from django.core.management.base import BaseCommand
 from django.core import serializers
+from django.db.models import Q
 
 from event.models import Event
+from event.support import loggerInfo
 
 
 class Command(BaseCommand):
     def handle(self, **options):
         Path("./data").mkdir(parents=True, exist_ok=True)
 
-        print(f"exporting data {str(date.today())}")
+        loggerInfo(f"exporting data {str(date.today())}")
         events = Event.objects.filter(
-            created__gt=datetime.now() - timedelta(days=30)
+            Q(created__gt=datetime.now() - timedelta(days=30))
+            | Q(updated__gt=datetime.now() - timedelta(days=30))
+            | Q(start_date__gt=datetime.now() - timedelta(days=30))
         ).order_by("created")
 
         created = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
@@ -29,5 +33,5 @@ class Command(BaseCommand):
             Body=bytes(json.dumps(output).encode("UTF-8")),
             ContentType="application/json",
         )
-        print(f"{events.count()} events exported")
-        print("export completed")
+        loggerInfo(f"{events.count()} events exported")
+        loggerInfo("export completed")

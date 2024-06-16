@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count
 
 from event.models import Location, Event, Artist
+from event.support import loggerInfo
 
 s3 = boto3.resource("s3")
 
@@ -27,7 +28,7 @@ def make_json(csv_file_path, json_file_path):
 
 
 def export_locations():
-    print("exporting locations...")
+    loggerInfo("exporting locations...")
 
     query = Location.objects.annotate(events=Count("event"))
 
@@ -144,11 +145,11 @@ def export_locations():
         },
     )
 
-    print("locations exported")
+    loggerInfo("locations exported")
 
 
 def export_events():
-    print("exporting events...")
+    loggerInfo("exporting events...")
 
     query = Event.objects.annotate(artists_count=Count("artists"))
 
@@ -187,7 +188,7 @@ def export_events():
                     ]
                 )
             else:
-                print("no location", row)
+                loggerInfo("no location", row)
 
     json_file_name = "data/events.json"
     make_json(file_name, json_file_name)
@@ -210,7 +211,7 @@ def export_events():
         },
     )
 
-    print("events exported")
+    loggerInfo("events exported")
 
 
 def get_group(followers):
@@ -234,7 +235,7 @@ def get_popularity(popularity):
 
 
 def export_artist():
-    print("exporting artists...")
+    loggerInfo("exporting artists...")
 
     query = Artist.objects.filter(musico__isnull=False).annotate(
         events_count=Count("event")
@@ -294,16 +295,16 @@ def export_artist():
     with open(json_file_name, newline="") as json_file:
         default_storage.save(json_file_name, json_file)
 
-    print("artists exported")
+    loggerInfo("artists exported")
 
 
 def export_artist_twitter():
-    print("exporting artists with twitter...")
+    loggerInfo("exporting artists with twitter...")
 
     query = Artist.objects.filter(
         musico__isnull=False, twitter__followers_count__gt=0
     ).annotate(events_count=Count("event"))
-    print(f"artists found: {query.count()}")
+    loggerInfo(f"artists found: {query.count()}")
 
     file_name = "data/artists.csv"
     with open(file_name, "w", newline="") as csv_file:
@@ -367,18 +368,18 @@ def export_artist_twitter():
         },
     )
 
-    print("artists exported")
+    loggerInfo("artists exported")
 
 
 class Command(BaseCommand):
     def handle(self, **options):
         Path("./data").mkdir(parents=True, exist_ok=True)
 
-        print(f"exporting data {str(datetime.date.today())}")
+        loggerInfo(f"exporting data {str(datetime.date.today())}")
 
         export_locations()
         export_events()
-        # # export_artist()
+        # export_artist()
         export_artist_twitter()
 
-        print("export completed")
+        loggerInfo("export completed")
