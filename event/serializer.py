@@ -3,8 +3,8 @@ import pytz
 from rest_framework import serializers
 from rest_framework.serializers import FloatField
 
-from .models import Artist, Event, Location, Metadata, Spotify, Genre, Slug, MusicO
-from .support import get_rank, get_location_rank
+from event.models import Artist, Event, Location, Metadata, Spotify, Genre, Slug, MusicO
+from event.support import get_rank, get_location_rank
 
 
 class SlugSerializer(serializers.ModelSerializer):
@@ -258,12 +258,14 @@ class EventSerializer(serializers.ModelSerializer):
             datetime.combine(validated_data["start_date"], time.min, tzinfo=pytz.UTC),
             datetime.combine(validated_data["start_date"], time.max, tzinfo=pytz.UTC),
         )
+
         if Event.objects.filter(
             url=validated_data["url"],
             start_date__range=start_date_range,
         ).count():
             instance, _ = Event.objects.update_or_create(
                 url=validated_data["url"],
+                start_date=validated_data["start_date"],
                 defaults=validated_data,
             )
         else:
