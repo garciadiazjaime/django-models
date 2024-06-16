@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Count, Sum
 
-from .models import (
+from event.models import (
     Location,
     Event,
     Artist,

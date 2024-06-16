@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "gift.apps.GiftConfig",
     "event.apps.EventConfig",
     "place.apps.PlaceConfig",
+    "newsletter.apps.NewsletterConfig",
     "django_filters",
     "rest_framework",
     "corsheaders",

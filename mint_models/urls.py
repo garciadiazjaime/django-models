@@ -24,6 +24,7 @@ from mint_models import views
 urlpatterns = [
     path("api/events/", include(event_routes)),
     path("api/places/", include(place_routes)),
+    path("api/newsletter/", include("gift.urls")),
     path("gifts/", include("gift.urls")),
     path("admin/", admin.site.urls),
     path("__debug__/", include("debug_toolbar.urls")),
