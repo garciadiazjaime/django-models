@@ -7,6 +7,8 @@ import json
 from django.core.management.base import BaseCommand
 from django.core import serializers
 from django.db.models import Q
+from django.utils import timezone
+
 
 from event.models import Event
 from event.support import loggerInfo
@@ -18,9 +20,9 @@ class Command(BaseCommand):
 
         loggerInfo(f"exporting data {str(date.today())}")
         events = Event.objects.filter(
-            Q(created__gt=datetime.now() - timedelta(days=30))
-            | Q(updated__gt=datetime.now() - timedelta(days=30))
-            | Q(start_date__gt=datetime.now() - timedelta(days=30))
+            Q(created__gt=datetime.now(tz=timezone.utc) - timedelta(days=30))
+            | Q(updated__gt=datetime.now(tz=timezone.utc) - timedelta(days=30))
+            | Q(start_date__gt=datetime.now(tz=timezone.utc) - timedelta(days=30))
         ).order_by("created")
 
         created = datetime.today().strftime("%Y-%m-%d %H:%M:%S")

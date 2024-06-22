@@ -165,6 +165,7 @@ INTERNAL_IPS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://livemusicadmin.mintitmedia.com",
     "https://api.livemusic.mintitmedia.com",
+    "https://api.chicagomusiccompass.com",
 ]
 
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

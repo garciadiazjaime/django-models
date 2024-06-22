@@ -266,6 +266,8 @@ class EventSerializer(serializers.ModelSerializer):
             instance, _ = Event.objects.update_or_create(
                 url=validated_data["url"],
                 start_date=validated_data["start_date"],
+                name=name,
+                location=location,
                 defaults=validated_data,
             )
         else:

@@ -19,12 +19,13 @@ from django.contrib import admin
 from django.urls import path, include
 from event.urls import urlpatterns as event_routes
 from place.urls import urlpatterns as place_routes
+from newsletter.urls import urlpatterns as newsletter_routes
 from mint_models import views
 
 urlpatterns = [
     path("api/events/", include(event_routes)),
     path("api/places/", include(place_routes)),
-    path("api/newsletter/", include("gift.urls")),
+    path("api/newsletter/", include(newsletter_routes)),
     path("gifts/", include("gift.urls")),
     path("admin/", admin.site.urls),
     path("__debug__/", include("debug_toolbar.urls")),
