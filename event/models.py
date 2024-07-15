@@ -129,7 +129,7 @@ class Event(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     provider = models.CharField(max_length=240)
     price = models.FloatField(default=0, null=True, blank=True)
-    buyUrl = models.URLField(default="", blank=True)
+    buyUrl = models.URLField(default="", blank=True, max_length=420)
 
     venue = models.CharField(max_length=240)
     address = models.CharField(max_length=240, default="", blank=True)
@@ -162,6 +162,7 @@ class Twitter(models.Model):
 
     def __str__(self):
         return self.handler
+
 
 class Instagram(models.Model):
     handler = models.CharField(max_length=240)
