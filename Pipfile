@@ -19,13 +19,13 @@ django-storages = "*"
 boto3 = "*"
 requests = "*"
 django-dbbackup = "*"
-tensorflow = "*"
 matplotlib = "*"
 pandas = "*"
 seaborn = "*"
 scikit-learn = "*"
 scrapy = "*"
 tensorflowjs = "*"
+tensorflow = "*"
 
 [dev-packages]
 

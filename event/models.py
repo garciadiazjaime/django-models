@@ -42,7 +42,7 @@ class Spotify(models.Model):
 class Metadata(models.Model):
     slug = models.SlugField(max_length=240)
     type = models.CharField(max_length=24, choices=METADATA_CHOICES)
-    website = models.URLField(default="", blank=True)
+    website = models.URLField(default="", blank=True, max_length=240)
     image = models.URLField(default="", blank=True, max_length=420)
     twitter = models.URLField(default="", blank=True)
     facebook = models.URLField(default="", blank=True)
@@ -101,7 +101,7 @@ class Location(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     lng = models.DecimalField(max_digits=9, decimal_places=6)
     place_id = models.CharField(max_length=50)
-    website = models.URLField(null=True, blank=True, default="")
+    website = models.URLField(null=True, blank=True, default="", max_length=240)
     url = models.URLField(null=True, blank=True, default="")
     provider = models.BooleanField(default=False)
 

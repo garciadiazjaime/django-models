@@ -163,8 +163,6 @@ INTERNAL_IPS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://livemusicadmin.mintitmedia.com",
-    "https://api.livemusic.mintitmedia.com",
     "https://api.chicagomusiccompass.com",
 ]
 

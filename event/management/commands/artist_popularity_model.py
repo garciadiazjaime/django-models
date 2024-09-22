@@ -46,7 +46,8 @@ def get_cleaned_data(raw_dataset):
 
     dataset = dataset[["twitter_followers", "popularity"]]
     dataset["popularity"] = dataset["popularity"] / 100
-    dataset["twitter_followers"] = np.log2(dataset["twitter_followers"])
+    # dataset["twitter_followers"] = np.log2(dataset["twitter_followers"])
+    dataset["twitter_followers"] = dataset["twitter_followers"]
 
     return dataset
 
@@ -146,9 +147,10 @@ class Command(BaseCommand):
         print("\nTest loss:", test_loss)
 
         if options["plot"]:
-            x = tf.linspace(0.0, np.log2(max(raw_dataset["twitter_followers"])), 1000)
+            # x = tf.linspace(0.0, np.log2(max(raw_dataset["twitter_followers"])), 1000)
+            x = tf.linspace(0.0, max(raw_dataset["twitter_followers"]), 1000)
             y = model.predict(x)
             plot_xy(x, y, train_features["twitter_followers"], train_labels)
 
-        model.save("./data/artist_popularity_model.keras")
-        model.export("./data/saved_model")
+        model.save("./data/model/artist_popularity_model.keras")
+        model.export("./data/model/saved_model")

@@ -301,9 +301,11 @@ def export_artist():
 def export_artist_twitter():
     loggerInfo("exporting artists with twitter...")
 
-    query = Artist.objects.filter(
-        musico__isnull=False, twitter__followers_count__gt=0
-    ).annotate(events_count=Count("event"))
+    query = (
+        Artist.objects.filter(musico__isnull=False, twitter__followers_count__gt=0)
+        .annotate(events_count=Count("event"))
+        .order_by("-twitter__followers_count")
+    )
     loggerInfo(f"artists found: {query.count()}")
 
     file_name = "data/artists.csv"
@@ -313,18 +315,19 @@ def export_artist_twitter():
         )
         file.writerow(
             [
-                "spotify",
-                "spotify_followers",
-                "website",
-                "twitter",
+                # "spotify",
+                # "spotify_followers",
+                # "website",
+                # "twitter",
                 "twitter_followers",
-                "facebook",
-                "youtube",
-                "instagram",
-                "tiktok",
-                "soundcloud",
-                "appleMusic",
+                # "facebook",
+                # "youtube",
+                # "instagram",
+                # "tiktok",
+                # "soundcloud",
+                # "appleMusic",
                 "popularity",
+                "handle",
             ]
         )
 
@@ -332,41 +335,42 @@ def export_artist_twitter():
             # popularity = get_popularity(artist.musico_set.first().popularity)
             file.writerow(
                 [
-                    1 if artist.spotify else 0,
-                    artist.spotify.followers if artist.spotify else 0,
-                    1 if hasattr(artist.metadata, "website") else 0,
-                    1 if hasattr(artist.metadata, "twitter") else 0,
+                    # 1 if artist.spotify else 0,
+                    # artist.spotify.followers if artist.spotify else 0,
+                    # 1 if hasattr(artist.metadata, "website") else 0,
+                    # 1 if hasattr(artist.metadata, "twitter") else 0,
                     artist.twitter_set.first().followers_count,
-                    1 if hasattr(artist.metadata, "facebook") else 0,
-                    1 if hasattr(artist.metadata, "youtube") else 0,
-                    1 if hasattr(artist.metadata, "instagram") else 0,
-                    1 if hasattr(artist.metadata, "tiktok") else 0,
-                    1 if hasattr(artist.metadata, "soundcloud") else 0,
-                    1 if hasattr(artist.metadata, "appleMusic") else 0,
+                    # 1 if hasattr(artist.metadata, "facebook") else 0,
+                    # 1 if hasattr(artist.metadata, "youtube") else 0,
+                    # 1 if hasattr(artist.metadata, "instagram") else 0,
+                    # 1 if hasattr(artist.metadata, "tiktok") else 0,
+                    # 1 if hasattr(artist.metadata, "soundcloud") else 0,
+                    # 1 if hasattr(artist.metadata, "appleMusic") else 0,
                     artist.musico_set.first().popularity,
+                    artist.twitter_set.first().handler,
                 ]
             )
 
-    json_file_name = "data/artists.json"
+    # json_file_name = "data/artists.json"
 
-    make_json(file_name, json_file_name)
-    s3.meta.client.upload_file(
-        Filename=file_name,
-        Bucket="cmc.data",
-        Key=file_name,
-        ExtraArgs={
-            "ContentType": "text/csv",
-        },
-    )
+    # make_json(file_name, json_file_name)
+    # s3.meta.client.upload_file(
+    #     Filename=file_name,
+    #     Bucket="cmc.data",
+    #     Key=file_name,
+    #     ExtraArgs={
+    #         "ContentType": "text/csv",
+    #     },
+    # )
 
-    s3.meta.client.upload_file(
-        Filename=json_file_name,
-        Bucket="cmc.data",
-        Key=json_file_name,
-        ExtraArgs={
-            "ContentType": "application/json",
-        },
-    )
+    # s3.meta.client.upload_file(
+    #     Filename=json_file_name,
+    #     Bucket="cmc.data",
+    #     Key=json_file_name,
+    #     ExtraArgs={
+    #         "ContentType": "application/json",
+    #     },
+    # )
 
     loggerInfo("artists exported")
 
@@ -377,8 +381,8 @@ class Command(BaseCommand):
 
         loggerInfo(f"exporting data {str(datetime.date.today())}")
 
-        export_locations()
-        export_events()
+        # export_locations()
+        # export_events()
         # export_artist()
         export_artist_twitter()
 

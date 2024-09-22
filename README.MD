@@ -56,34 +56,6 @@ You can use super user on [admin site](http://127.0.0.1:8000/admin)
 ./manage.py runserver
 ```
 
-## How to export DB to JSON
-
-- Open sqlite shell
-
-```bash
-sqlite3 db.sqlite3
-```
-
-- Generate JSON
-
-```bash
-.mode json
-.once gift.json
-SELECT g.id, g.title, g.description, g.price, g.store_url, g.image_url, c.name as category, p.name as price_range FROM gift_gift g INNER JOIN gift_category c ON g.category_id == c.id INNER JOIN gift_pricerange p ON g.price_range_id == p.id;
-```
-
-- Show tables
-
-```bash
-.tables
-```
-
-- Describe table
-
-```bash
-pragma table_info('table_name');
-```
-
 ## Database
 
 ### spin mysql container
@@ -140,4 +112,30 @@ WHERE updated > (CURDATE() - INTERVAL 1 MONTH)
 GROUP BY provider, date
 ORDER BY date DESC, count DESC
 ;
+```
+
+## Export Tensorflow model
+
+`fab2 model` takes care of all the tasks needed: `generate .csv`, `save model`, and `convert  model`
+
+```sh
+fab2 model
+```
+
+### Generate `.csv`
+
+```sh
+./manage.py report
+```
+
+### Saved model
+
+```sh
+./manage.py artist_popularity_model
+```
+
+### Convert model
+
+```sh
+tensorflowjs_converter --input_format=tf_saved_model data/model/saved_model data/public
 ```
