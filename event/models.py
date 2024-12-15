@@ -75,7 +75,9 @@ class Artist(models.Model):
         Metadata, on_delete=models.CASCADE, null=True, blank=True
     )
 
-    slug = AutoSlugField(populate_from="name", editable=True, always_update=True)
+    slug = AutoSlugField(
+        populate_from="name", editable=True, always_update=True, max_length=240
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

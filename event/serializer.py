@@ -252,28 +252,12 @@ class EventSerializer(serializers.ModelSerializer):
             location.metadata = location_meta
             location.rank = get_location_rank(pre_location_meta)
             location.save()
-
-        name = validated_data.pop("name")
-        start_date_range = (
-            datetime.combine(validated_data["start_date"], time.min, tzinfo=pytz.UTC),
-            datetime.combine(validated_data["start_date"], time.max, tzinfo=pytz.UTC),
-        )
-
-        if Event.objects.filter(
+        instance, _ = Event.objects.update_or_create(
             url=validated_data["url"],
-            start_date__range=start_date_range,
-        ).count():
-            instance, _ = Event.objects.update_or_create(
-                url=validated_data["url"],
-                start_date=validated_data["start_date"],
-                name=name,
-                location=location,
-                defaults=validated_data,
-            )
-        else:
-            instance, _ = Event.objects.update_or_create(
-                name=name, location=location, defaults=validated_data
-            )
+            start_date=validated_data["start_date"],
+            location=location,
+            defaults=validated_data,
+        )
 
         for pre_artist in pre_artists:
             pre_artist_meta = (
@@ -323,6 +307,7 @@ class EventSerializer(serializers.ModelSerializer):
             instance.artists.add(artist)
 
         instance.rank = get_rank(instance)
+
         instance.save()
 
         return instance

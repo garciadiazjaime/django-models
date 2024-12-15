@@ -86,6 +86,13 @@ fab2 deploy
 ./manage.py dbbackup
 ```
 
+If there's an error with mysql-dump try installing:
+
+```bash
+apg-get update
+apt-get install -y mariadb-client
+```
+
 The backup file will be saved in the `./data` directory, defined by the `DBBACKUP_STORAGE_OPTIONS` var in the [settings.py](https://github.com/garciadiazjaime/django-models/blob/main/mint_models/settings.py) file.
 
 ### Restore DB
