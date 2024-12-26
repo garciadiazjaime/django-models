@@ -179,3 +179,13 @@ class Instagram(models.Model):
 
     def __str__(self):
         return self.handler
+
+
+class GenerativeMetadata(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    type = models.CharField(max_length=240)
+    genre = models.CharField(max_length=240)
+    subgenre = models.CharField(max_length=240)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

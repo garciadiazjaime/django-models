@@ -26,6 +26,7 @@ scikit-learn = "*"
 scrapy = "*"
 tensorflowjs = "*"
 tensorflow = "*"
+google-generativeai = "*"
 
 [dev-packages]
 

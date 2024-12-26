@@ -1,11 +1,19 @@
 FROM python:3.11
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /code
-WORKDIR /code
-ADD Pipfile /code/
-ADD Pipfile.lock /code/
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libhdf5-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install pipenv
-RUN pipenv install --system
+
+WORKDIR /code
+
+COPY Pipfile Pipfile.lock /code/
+
+
+RUN pipenv install --system --deploy
+
 ADD . /code
 
 EXPOSE 8000

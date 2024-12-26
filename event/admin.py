@@ -12,6 +12,7 @@ from event.models import (
     MusicO,
     Twitter,
     Instagram,
+    GenerativeMetadata,
 )
 
 
@@ -254,6 +255,25 @@ class InstagramAdmin(admin.ModelAdmin):
         return obj.artist.metadata.instagram
 
 
+class GenerativeMetadataAdmin(admin.ModelAdmin):
+    list_display = [
+        "event",
+        "venue",
+        "type",
+        "genre",
+        "subgenre",
+        "created",
+        "updated",
+    ]
+    search_fields = ["event__name", "event__venue"]
+
+    def event(self, obj):
+        return obj.event.name
+
+    def venue(self, obj):
+        return obj.event.venue
+
+
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Spotify, SpotifyAdmin)
 admin.site.register(Metadata, MetadataAdmin)
@@ -265,6 +285,7 @@ admin.site.register(Slug, SlugAdmin)
 admin.site.register(MusicO, MusicOAdmin)
 admin.site.register(Twitter, TwitterAdmin)
 admin.site.register(Instagram, InstagramAdmin)
+admin.site.register(GenerativeMetadata, GenerativeMetadataAdmin)
 
 
 from django.contrib import admin
