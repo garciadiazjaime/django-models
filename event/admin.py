@@ -185,6 +185,7 @@ class EventAdmin(admin.ModelAdmin):
         "pk",
     ]
     search_fields = ["pk", "name", "slug", "venue", "provider"]
+    readonly_fields = ("created", "updated")
 
     def artist(self, obj):
         return [artist.name for artist in obj.artists.all()]
@@ -259,11 +260,13 @@ class GenerativeMetadataAdmin(admin.ModelAdmin):
     list_display = [
         "event",
         "venue",
+        "description",
         "type",
         "genre",
         "subgenre",
         "created",
         "updated",
+        "event_pk",
     ]
     search_fields = ["event__name", "event__venue"]
 
@@ -272,6 +275,12 @@ class GenerativeMetadataAdmin(admin.ModelAdmin):
 
     def venue(self, obj):
         return obj.event.venue
+
+    def event_pk(self, obj):
+        return obj.event.pk
+
+    def description(self, obj):
+        return obj.event.description
 
 
 admin.site.register(Genre, GenreAdmin)

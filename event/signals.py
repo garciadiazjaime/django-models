@@ -16,21 +16,43 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 @receiver(post_save, sender=Event)
 def update_genre(sender, instance, created, **kwargs):
+    print("post_save", instance, created)
     if created:
-        query = (
-            "return a csv only including type of event, genre and one subgenre for the chicago event titled: "
-            + instance.name
-            + " at the venue: "
-            + instance.venue
+        print("==== Event Created ==== " + instance.name)
+
+        same_meta = GenerativeMetadata.objects.filter(
+            event__name=instance.name,
+            event__venue=instance.venue,
+            event__description=instance.description,
         )
+        if same_meta.count():
+            print("==== Same Meta Event Found ====")
+            GenerativeMetadata.objects.update_or_create(
+                event=instance,
+                type=same_meta.first().type,
+                genre=same_meta.first().genre,
+                subgenre=same_meta.first().subgenre,
+            )
+            return
+
+        query = f'return a csv only including type of event, genre and one subgenre for the chicago event titled: "{instance.name}" at the venue: "{instance.venue}"'
         if instance.description:
-            query += " with description: " + instance.description
+            query += f' with description: "{instance.description}"'
         print(query)
-        response = model.generate_content(query)
+
+        try:
+            response = model.generate_content(query)
+
+        except Exception as e:
+            print(e)
+
+        if not response:
+            return
 
         print(response.text)
         even_type, genre, subgenre = response.text.split("\n")[2].split(",")
 
+        print("==== New Meta Event Created ====")
         GenerativeMetadata.objects.update_or_create(
             event=instance,
             type=even_type,
