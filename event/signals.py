@@ -18,7 +18,7 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 def update_genre(sender, instance, created, **kwargs):
     print("post_save", instance, created)
     if created:
-        print("==== Event Created ==== " + instance.name)
+        print("==== Event Created ==== " + instance.provider)
 
         same_meta = GenerativeMetadata.objects.filter(
             event__name=instance.name,
@@ -40,6 +40,7 @@ def update_genre(sender, instance, created, **kwargs):
             query += f' with description: "{instance.description}"'
         print(query)
 
+        response = None
         try:
             response = model.generate_content(query)
 
