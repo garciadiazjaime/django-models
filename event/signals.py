@@ -53,10 +53,12 @@ def update_genre(sender, instance, created, **kwargs):
         print(response.text)
         even_type, genre, subgenre = response.text.split("\n")[2].split(",")
 
+        invalid_sub_genres = ["Unspecified", "???"]
+
         print("==== New Meta Event Created ====")
         GenerativeMetadata.objects.update_or_create(
             event=instance,
             type=even_type,
             genre=genre,
-            subgenre=subgenre,
+            subgenre=None if subgenre in invalid_sub_genres else subgenre,
         )
