@@ -60,6 +60,16 @@ class MetadataSerializer(serializers.ModelSerializer):
         ]
 
 
+class GenerativeMetadataSerializer(serializers.ModelSerializer):
+    genre = serializers.CharField(required=False, allow_null=True)
+    subgenre = serializers.CharField(required=False, allow_null=True)
+    type = serializers.CharField(required=False, allow_null=True)
+
+    class Meta:
+        model = Metadata
+        fields = ["genre", "subgenre", "type"]
+
+
 class LocationSerializer(serializers.ModelSerializer):
     lat = serializers.FloatField()
     lng = serializers.FloatField()
@@ -200,6 +210,7 @@ class EventSerializer(serializers.ModelSerializer):
     rank = serializers.IntegerField(read_only=True)
     slug = serializers.CharField(read_only=True)
     price = BlankFloatField(required=False, allow_null=True, default=None)
+    generativemetadata_set = GenerativeMetadataSerializer(read_only=True, many=True)
 
     class Meta:
         model = Event
@@ -221,6 +232,7 @@ class EventSerializer(serializers.ModelSerializer):
             "buyUrl",
             "location",
             "artists",
+            "generativemetadata_set",
         ]
 
     def create(self, validated_data):

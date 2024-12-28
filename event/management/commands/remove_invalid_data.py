@@ -1,6 +1,23 @@
 from django.db.models import Count
 from django.core.management.base import BaseCommand
-from event.models import Event, Metadata
+from event.models import Event, Metadata, GenerativeMetadata
+
+
+def remove_duplicate_generative_metadata():
+    duplicate_entries = (
+        GenerativeMetadata.objects.values("event")
+        .annotate(entry_count=Count("event"))
+        .filter(entry_count__gt=1)
+    )
+    print(f"\nTotal generative metadata duplicate entries: {len(duplicate_entries)}")
+
+    for entry in duplicate_entries:
+        items = GenerativeMetadata.objects.filter(event=entry["event"])
+
+        for item in items[1:]:
+            item.delete()
+
+    print("Done removing generative metadata duplicate entries")
 
 
 class Command(BaseCommand):
@@ -39,3 +56,5 @@ class Command(BaseCommand):
             item.facebook = ""
             item.save()
         print("Done removing invalid Facebook URLs")
+
+        remove_duplicate_generative_metadata()

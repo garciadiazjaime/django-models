@@ -268,7 +268,7 @@ class GenerativeMetadataAdmin(admin.ModelAdmin):
         "updated",
         "event_pk",
     ]
-    search_fields = ["event__name", "event__venue"]
+    search_fields = ["event__name", "event__venue", "event__pk"]
 
     def event(self, obj):
         return obj.event.name
